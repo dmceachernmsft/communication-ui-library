@@ -11,10 +11,6 @@ import { ChatUserType } from './defaults';
 export const dataUiId = (v: string): string => `[${DATA_UI_ID}="${v}"]`;
 const DATA_UI_ID = 'data-ui-id';
 const CONNECTION_STRING = process.env.CONNECTION_STRING ?? '';
-export const PAGE_VIEWPORT = {
-  width: 1024,
-  height: 768
-};
 export const TOPIC_NAME = 'Cowabunga';
 
 /**
@@ -191,7 +187,6 @@ export const loadUrlInPage = async (
   qArgs?: { [key: string]: string }
 ): Promise<Page> => {
   const qs = encodeQueryData({ ...user, ...qArgs });
-  await page.setViewportSize(PAGE_VIEWPORT);
   const url = `${serverUrl}?${qs}`;
   await page.goto(url, { waitUntil: 'networkidle' });
   return page;

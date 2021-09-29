@@ -38,11 +38,6 @@ export interface WorkerFixture<IdentityType> {
 
 export const CONNECTION_STRING = process.env.CONNECTION_STRING ?? '';
 
-export const PAGE_VIEWPORT = {
-  width: 1024,
-  height: 768
-};
-
 export const CHAT_TOPIC_NAME = 'Cowabunga';
 
 export const TEST_PARTICIPANTS = ['Dorian Gutmann', 'Kathleen Carroll'];
