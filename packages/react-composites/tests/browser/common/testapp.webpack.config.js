@@ -11,7 +11,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
  */
 module.exports = (appDir) => ({
   entry: path.join(appDir, 'index.tsx'),
-  devtool: process.env.CI ? undefined : 'eval-source-map',
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
