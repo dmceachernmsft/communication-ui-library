@@ -153,7 +153,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
   const participants = props.participantListProps.participants;
   const participantCount = participants.length;
 
-  const defaultFlyoutMenuItemStyles = merge(buttonFlyoutItemStyles, props.styles?.menuStyles.menuItemStyles);
+  const defaultFlyoutMenuItemStyles = merge(buttonFlyoutItemStyles, props.styles?.menuStyles?.menuItemStyles);
 
   const generateDefaultParticipantsSubMenuProps = useCallback((): IContextualMenuItem[] => {
     const items: IContextualMenuItem[] = [];

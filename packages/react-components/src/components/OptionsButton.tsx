@@ -170,9 +170,9 @@ const generateDefaultMenuProps = (
     calloutProps: { styles: { root: { maxWidth: '95%' } } }
   };
 
-  const menuItemStyles = merge(props.styles?.menuStyles.menuItemStyles ?? {}, buttonFlyoutItemStyles);
+  const menuItemStyles = merge(props.styles?.menuStyles?.menuItemStyles ?? {}, buttonFlyoutItemStyles);
 
-  console.log(props.styles?.menuStyles.menuItemStyles);
+  console.log(props.styles?.menuStyles?.menuItemStyles);
   console.log(menuItemStyles);
 
   if (cameras && selectedCamera && onSelectCamera) {
@@ -241,7 +241,7 @@ const generateDefaultMenuProps = (
           text: speaker.name,
           title: speaker.name,
           itemProps: {
-            styles: props.styles?.menuStyles.menuItemStyles
+            styles: menuItemStyles
           },
           iconProps: { iconName: 'OptionsSpeaker' },
           canCheck: true,

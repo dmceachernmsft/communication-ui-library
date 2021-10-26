@@ -190,7 +190,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
         text: strings.removeButtonLabel,
         onClick: () => onParticipantRemove(participant.userId),
         itemProps: {
-          styles: props.styles?.participantItemStyles.participantSubMenuItemsStyles
+          styles: props.styles?.participantItemStyles?.participantSubMenuItemsStyles
         }
       });
     }

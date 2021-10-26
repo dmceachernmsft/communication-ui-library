@@ -512,7 +512,7 @@ export const OptionsButton: (props: OptionsButtonProps) => JSX.Element;
 // @public
 export interface OptionsButtonContextualMenuStyles extends IContextualMenuStyles {
     // (undocumented)
-    menuItemStyles: IContextualMenuItemStyles;
+    menuItemStyles?: IContextualMenuItemStyles;
 }
 
 // @public
@@ -544,7 +544,7 @@ export interface OptionsButtonStrings {
 // @public
 export interface OptionsButtonStyles extends ControlBarButtonStyles {
     // (undocumented)
-    menuStyles: Partial<OptionsButtonContextualMenuStyles>;
+    menuStyles?: Partial<OptionsButtonContextualMenuStyles>;
 }
 
 // @public
@@ -600,7 +600,7 @@ export const ParticipantList: (props: ParticipantListProps) => JSX.Element;
 // @public
 export interface ParticipantListItemStyles extends ParticipantItemStyles {
     // (undocumented)
-    participantSubMenuItemsStyles: IContextualMenuItemStyles;
+    participantSubMenuItemsStyles?: IContextualMenuItemStyles;
 }
 
 // @public
@@ -618,7 +618,7 @@ export type ParticipantListProps = {
 // @public
 export interface ParticipantListStyles extends IRawStyle {
     // (undocumented)
-    participantItemStyles: ParticipantListItemStyles;
+    participantItemStyles?: ParticipantListItemStyles;
 }
 
 // @public
@@ -638,7 +638,7 @@ export const ParticipantsButton: (props: ParticipantsButtonProps) => JSX.Element
 // @public
 export interface ParticipantsButtonContextualMenuStyles extends IContextualMenuStyles {
     // (undocumented)
-    menuItemStyles: IContextualMenuItemStyles;
+    menuItemStyles?: IContextualMenuItemStyles;
 }
 
 // @public
@@ -664,7 +664,7 @@ export interface ParticipantsButtonStrings {
 export interface ParticipantsButtonStyles extends ControlBarButtonStyles {
     container?: IStyle;
     // (undocumented)
-    menuStyles: Partial<ParticipantsButtonContextualMenuStyles>;
+    menuStyles?: Partial<ParticipantsButtonContextualMenuStyles>;
 }
 
 // @public
