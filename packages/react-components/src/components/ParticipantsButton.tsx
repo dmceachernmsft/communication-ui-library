@@ -8,14 +8,16 @@ import {
   IStyle,
   Stack,
   mergeStyles,
-  Icon
+  Icon,
+  IContextualMenuStyles,
+  IContextualMenuItemStyles,
+  merge
 } from '@fluentui/react';
 import copy from 'copy-to-clipboard';
 import React, { useCallback, useMemo } from 'react';
 import { ParticipantList, ParticipantListProps } from './ParticipantList';
 import {
   buttonFlyoutItemStyles,
-  buttonFlyoutItemStylesWithIncreasedTouchTargets,
   defaultParticipantListContainerStyle,
   participantsButtonMenuPropsStyle
 } from './styles/ControlBar.styles';
@@ -24,13 +26,23 @@ import { formatString } from '../localization/localizationUtils';
 import { ControlBarButton, ControlBarButtonProps, ControlBarButtonStyles } from './ControlBarButton';
 
 /**
+ * Styles for the {@link ParticipantsButton} button menu.
+ *
+ * @public
+ */
+export interface ParticipantsButtonContextualMenuStyles extends IContextualMenuStyles {
+  menuItemStyles?: IContextualMenuItemStyles;
+}
+
+/**
  * Styles Props for {@link ParticipantsButton}.
  *
  * @public
  */
 export interface ParticipantsButtonStyles extends ControlBarButtonStyles {
   /** Styles of ParticipantList container */
-  participantListContainerStyle?: IStyle;
+  container?: IStyle;
+  menuStyles?: Partial<ParticipantsButtonContextualMenuStyles>;
 }
 
 /**
@@ -66,7 +78,11 @@ export interface ParticipantsButtonStrings {
  *
  * @public
  */
-export interface ParticipantsButtonProps extends ControlBarButtonProps, ParticipantListProps {
+export interface ParticipantsButtonProps extends ControlBarButtonProps {
+  /**
+   * Props of the participant list shown when the button is toggled.
+   */
+  participantListProps: ParticipantListProps;
   /**
    * Optional callback to render the participant list.
    */
@@ -91,11 +107,6 @@ export interface ParticipantsButtonProps extends ControlBarButtonProps, Particip
    * Optional strings to override in component
    */
   strings?: Partial<ParticipantsButtonStrings>;
-  /**
-   * Option to increase the touch targets of the button flyout menu items from 36px to 48px.
-   * Recommended for mobile devices.
-   */
-  increaseFlyoutItemTouchTargetSize?: boolean;
 }
 
 const onRenderPeopleIcon = (): JSX.Element => {
@@ -114,20 +125,7 @@ const onRenderPeopleIcon = (): JSX.Element => {
  * @public
  */
 export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element => {
-  const {
-    callInvitationURL,
-    styles,
-    onMuteAll,
-    onRenderIcon,
-    onRenderParticipantList,
-    participants,
-    myUserId,
-    excludeMe,
-    onRenderParticipant,
-    onRenderAvatar,
-    onParticipantRemove,
-    onFetchParticipantMenuItems
-  } = props;
+  const { callInvitationURL, styles, onMuteAll, onRenderIcon, onRenderParticipantList } = props;
 
   const onMuteAllCallback = useCallback(() => {
     if (onMuteAll) {
@@ -137,30 +135,11 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
 
   const defaultParticipantList = useCallback(() => {
     return (
-      <Stack className={mergeStyles(defaultParticipantListContainerStyle, styles?.participantListContainerStyle)}>
-        <ParticipantList
-          participants={participants}
-          myUserId={myUserId}
-          excludeMe={excludeMe}
-          onRenderParticipant={onRenderParticipant}
-          onRenderAvatar={onRenderAvatar}
-          onParticipantRemove={onParticipantRemove}
-          onFetchParticipantMenuItems={onFetchParticipantMenuItems}
-          increaseFlyoutItemTouchTargetSize={props.increaseFlyoutItemTouchTargetSize}
-        />
+      <Stack className={mergeStyles(defaultParticipantListContainerStyle, styles?.container)}>
+        <ParticipantList {...props.participantListProps} />
       </Stack>
     );
-  }, [
-    styles?.participantListContainerStyle,
-    participants,
-    myUserId,
-    excludeMe,
-    onRenderParticipant,
-    onRenderAvatar,
-    onParticipantRemove,
-    onFetchParticipantMenuItems,
-    props.increaseFlyoutItemTouchTargetSize
-  ]);
+  }, [styles?.container, props.participantListProps]);
 
   const onCopyCallback = useCallback(() => {
     if (callInvitationURL) {
@@ -171,7 +150,10 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
 
   const localeStrings = useLocale().strings.participantsButton;
   const strings = useMemo(() => ({ ...localeStrings, ...props.strings }), [localeStrings, props.strings]);
+  const participants = props.participantListProps.participants;
   const participantCount = participants.length;
+
+  const defaultFlyoutMenuItemStyles = merge(buttonFlyoutItemStyles, props.styles?.menuStyles.menuItemStyles);
 
   const generateDefaultParticipantsSubMenuProps = useCallback((): IContextualMenuItem[] => {
     const items: IContextualMenuItem[] = [];
@@ -190,9 +172,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
           text: strings.muteAllButtonLabel,
           title: strings.muteAllButtonLabel,
           itemProps: {
-            styles: props.increaseFlyoutItemTouchTargetSize
-              ? buttonFlyoutItemStylesWithIncreasedTouchTargets
-              : buttonFlyoutItemStyles
+            styles: defaultFlyoutMenuItemStyles
           },
           iconProps: { iconName: 'MicOff2' },
           onClick: onMuteAllCallback
@@ -207,10 +187,11 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
     defaultParticipantList,
     onMuteAll,
     strings.muteAllButtonLabel,
-    props.increaseFlyoutItemTouchTargetSize,
+    defaultFlyoutMenuItemStyles,
     onMuteAllCallback
   ]);
 
+  const excludeMe = props.participantListProps.excludeMe;
   const defaultMenuProps = useMemo((): IContextualMenuProps => {
     const menuProps: IContextualMenuProps = {
       title: strings.menuHeader,
@@ -230,9 +211,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
         key: 'participantCountKey',
         name: formatString(strings.participantsListButtonLabel, { numParticipants: `${participantCountWithoutMe}` }),
         itemProps: {
-          styles: props.increaseFlyoutItemTouchTargetSize
-            ? buttonFlyoutItemStylesWithIncreasedTouchTargets
-            : buttonFlyoutItemStyles
+          styles: defaultFlyoutMenuItemStyles
         },
         iconProps: { iconName: 'People' },
         subMenuProps: {
@@ -251,9 +230,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
         name: strings.copyInviteLinkButtonLabel,
         title: strings.copyInviteLinkButtonLabel,
         itemProps: {
-          styles: props.increaseFlyoutItemTouchTargetSize
-            ? buttonFlyoutItemStylesWithIncreasedTouchTargets
-            : buttonFlyoutItemStyles
+          styles: defaultFlyoutMenuItemStyles
         },
         iconProps: { iconName: 'Link' },
         onClick: onCopyCallback
@@ -269,7 +246,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
     callInvitationURL,
     participants,
     excludeMe,
-    props.increaseFlyoutItemTouchTargetSize,
+    defaultFlyoutMenuItemStyles,
     generateDefaultParticipantsSubMenuProps,
     onCopyCallback
   ]);

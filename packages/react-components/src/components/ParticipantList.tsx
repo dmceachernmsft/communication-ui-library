@@ -1,19 +1,40 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Icon, IContextualMenuItem, PersonaPresence, Stack } from '@fluentui/react';
+import {
+  Icon,
+  IContextualMenuItem,
+  IContextualMenuItemStyles,
+  IRawStyle,
+  merge,
+  mergeStyles,
+  PersonaPresence,
+  Stack
+} from '@fluentui/react';
 import React, { useMemo } from 'react';
 import { useIdentifiers } from '../identifiers';
 import { useLocale } from '../localization';
 import { CallParticipant, CommunicationParticipant, OnRenderAvatarCallback } from '../types';
-import { buttonFlyoutItemStylesWithIncreasedTouchTargets } from './styles/ControlBar.styles';
-import {
-  iconStyles,
-  participantListItemStyle,
-  participantListItemStyleWithIncreasedTouchTargets,
-  participantListStyle
-} from './styles/ParticipantList.styles';
-import { ParticipantItem, ParticipantItemStrings } from './ParticipantItem';
+import { iconStyles, participantListItemStyle, participantListStyle } from './styles/ParticipantList.styles';
+import { ParticipantItem, ParticipantItemStrings, ParticipantItemStyles } from './ParticipantItem';
+
+/**
+ * Styles for the {@link ParticipantList} {@link ParticipantItem}.
+ *
+ * @public
+ */
+export interface ParticipantListItemStyles extends ParticipantItemStyles {
+  participantSubMenuItemsStyles?: IContextualMenuItemStyles;
+}
+
+/**
+ * Styles for the {@link ParticipantList}.
+ *
+ * @public
+ */
+export interface ParticipantListStyles extends IRawStyle {
+  participantItemStyles?: ParticipantListItemStyles;
+}
 
 /**
  * A callback for providing custom menu items for each participant in {@link ParticipantList}.
@@ -50,11 +71,8 @@ export type ParticipantListProps = {
   onParticipantRemove?: (userId: string) => void;
   /** Optional callback to render custom menu items for each participant. */
   onFetchParticipantMenuItems?: ParticipantMenuItemsCallback;
-  /**
-   * Option to increase the touch targets of flyout menu items from 36px to 48px.
-   * Recommended for mobile devices.
-   */
-  increaseFlyoutItemTouchTargetSize?: boolean;
+  /** Styles for the {@link ParticipantList} */
+  styles?: ParticipantListStyles;
 };
 
 const onRenderParticipantDefault = (
@@ -64,7 +82,7 @@ const onRenderParticipantDefault = (
   onParticipantRemove?: (userId: string) => void,
   onRenderAvatar?: OnRenderAvatarCallback,
   createParticipantMenuItems?: (participant: CommunicationParticipant) => IContextualMenuItem[],
-  increaseFlyoutItemTouchTargetSize?: boolean
+  styles?: ParticipantListItemStyles
 ): JSX.Element | null => {
   // Try to consider CommunicationParticipant as CallParticipant
   const callingParticipant = participant as CallParticipant;
@@ -98,14 +116,12 @@ const onRenderParticipantDefault = (
         )
       : () => null;
 
+  const participantItemStyles = merge(participantListItemStyle, styles);
+
   if (participant.displayName) {
     return (
       <ParticipantItem
-        styles={
-          increaseFlyoutItemTouchTargetSize
-            ? participantListItemStyleWithIncreasedTouchTargets
-            : participantListItemStyle
-        }
+        styles={participantItemStyles}
         key={participant.userId}
         userId={participant.userId}
         displayName={participant.displayName}
@@ -156,8 +172,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
     onParticipantRemove,
     onRenderAvatar,
     onRenderParticipant,
-    onFetchParticipantMenuItems,
-    increaseFlyoutItemTouchTargetSize
+    onFetchParticipantMenuItems
   } = props;
 
   const ids = useIdentifiers();
@@ -175,7 +190,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
         text: strings.removeButtonLabel,
         onClick: () => onParticipantRemove(participant.userId),
         itemProps: {
-          styles: increaseFlyoutItemTouchTargetSize ? buttonFlyoutItemStylesWithIncreasedTouchTargets : undefined
+          styles: props.styles?.participantItemStyles.participantSubMenuItemsStyles
         }
       });
     }
@@ -188,7 +203,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
   };
 
   return (
-    <Stack data-ui-id={ids.participantList} className={participantListStyle}>
+    <Stack data-ui-id={ids.participantList} className={mergeStyles(participantListStyle, props.styles)}>
       {displayedParticipants.map((participant: CommunicationParticipant) =>
         onRenderParticipant
           ? onRenderParticipant(participant)
@@ -199,7 +214,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
               onParticipantRemove,
               onRenderAvatar,
               createParticipantMenuItems,
-              increaseFlyoutItemTouchTargetSize
+              props.styles?.participantItemStyles
             )
       )}
     </Stack>

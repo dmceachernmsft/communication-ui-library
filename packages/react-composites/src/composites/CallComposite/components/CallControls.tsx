@@ -15,6 +15,7 @@ import {
 import React, { useMemo } from 'react';
 import { usePropsFor } from '../hooks/usePropsFor';
 import {
+  buttonFlyoutItemStylesWithIncreasedTouchTargets,
   checkedButtonOverrideStyles,
   groupCallLeaveButtonCompressedStyle,
   groupCallLeaveButtonStyle
@@ -133,7 +134,13 @@ export const CallControls = (props: CallControlsProps): JSX.Element => {
       callInvitationURL={callInvitationURL}
       onFetchParticipantMenuItems={onFetchParticipantMenuItems}
       disabled={options?.participantsButton !== true && options?.participantsButton?.disabled}
-      increaseFlyoutItemTouchTargetSize={options?.increaseFlyoutItemTouchTargetSize}
+      styles={
+        (options?.increaseFlyoutItemTouchTargetSize || undefined) && {
+          menuStyles: {
+            menuItemStyles: buttonFlyoutItemStylesWithIncreasedTouchTargets
+          }
+        }
+      }
     />
   );
 
@@ -143,7 +150,13 @@ export const CallControls = (props: CallControlsProps): JSX.Element => {
       persistMenu={true}
       {...optionsButtonProps}
       showLabel={!options?.compressedMode}
-      increaseFlyoutItemTouchTargetSize={options?.increaseFlyoutItemTouchTargetSize}
+      styles={
+        (options?.increaseFlyoutItemTouchTargetSize || undefined) && {
+          menuStyles: {
+            menuItemStyles: buttonFlyoutItemStylesWithIncreasedTouchTargets
+          }
+        }
+      }
     />
   );
 

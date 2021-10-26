@@ -30,7 +30,7 @@ import {
  *
  * @public
  */
-export interface ParticipantItemStylesProps extends BaseCustomStylesProps {
+export interface ParticipantItemStyles extends BaseCustomStylesProps {
   /** Styles for the avatar. */
   avatar?: IStyle;
   /** Styles for the (You) string. */
@@ -86,7 +86,7 @@ export interface ParticipantItemProps {
    * <ParticipantItem styles={{ root: { background: 'blue' } }} />
    * ```
    */
-  styles?: ParticipantItemStylesProps;
+  styles?: ParticipantItemStyles;
   /**
    * Optional strings to override in component
    */

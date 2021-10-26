@@ -19,6 +19,7 @@ import { useSelector } from '../hooks/useSelector';
 import { getLocalMicrophoneEnabled } from '../selectors/baseSelectors';
 import { devicePermissionSelector } from '../selectors/devicePermissionSelector';
 import { localPreviewSelector } from '../selectors/localPreviewSelector';
+import { buttonFlyoutItemStylesWithIncreasedTouchTargets } from '../styles/CallControls.styles';
 import {
   cameraOffLabelStyle,
   localPreviewContainerStyleDesktop,
@@ -105,7 +106,13 @@ export const LocalPreview = (props: LocalPreviewProps): JSX.Element => {
               // disable button whilst all other buttons are disabled
               disabled={!microphonePermissionGranted || !cameraPermissionGranted}
               showLabel={true}
-              increaseFlyoutItemTouchTargetSize={props.mobileView}
+              styles={
+                (props.mobileView || undefined) && {
+                  menuStyles: {
+                    menuItemStyles: buttonFlyoutItemStylesWithIncreasedTouchTargets
+                  }
+                }
+              }
             />
           )}
         </ControlBar>

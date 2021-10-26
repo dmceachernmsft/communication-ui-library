@@ -10,9 +10,12 @@ import { ComponentSlotStyle } from '@fluentui/react-northstar';
 import { IButtonProps } from '@fluentui/react';
 import { IButtonStyles } from '@fluentui/react';
 import { IContextualMenuItem } from '@fluentui/react';
+import { IContextualMenuItemStyles } from '@fluentui/react';
+import { IContextualMenuStyles } from '@fluentui/react';
 import { IMessageBarProps } from '@fluentui/react';
 import { IPersonaStyleProps } from '@fluentui/react';
 import { IPersonaStyles } from '@fluentui/react';
+import { IRawStyle } from '@fluentui/react';
 import { IRenderFunction } from '@fluentui/react';
 import { IStyle } from '@fluentui/react';
 import { IStyleFunctionOrObject } from '@fluentui/react';
@@ -507,9 +510,14 @@ defaultOnRender?: (props: CustomAvatarOptions) => JSX.Element) => JSX.Element;
 export const OptionsButton: (props: OptionsButtonProps) => JSX.Element;
 
 // @public
+export interface OptionsButtonContextualMenuStyles extends IContextualMenuStyles {
+    // (undocumented)
+    menuItemStyles: IContextualMenuItemStyles;
+}
+
+// @public
 export interface OptionsButtonProps extends ControlBarButtonProps {
     cameras?: OptionsDevice[];
-    increaseFlyoutItemTouchTargetSize?: boolean;
     microphones?: OptionsDevice[];
     onSelectCamera?: (device: OptionsDevice) => Promise<void>;
     onSelectMicrophone?: (device: OptionsDevice) => Promise<void>;
@@ -519,6 +527,7 @@ export interface OptionsButtonProps extends ControlBarButtonProps {
     selectedSpeaker?: OptionsDevice;
     speakers?: OptionsDevice[];
     strings?: Partial<OptionsButtonStrings>;
+    styles?: OptionsButtonStyles;
 }
 
 // @public
@@ -530,6 +539,12 @@ export interface OptionsButtonStrings {
     microphoneMenuTooltip: string;
     speakerMenuTitle: string;
     speakerMenuTooltip: string;
+}
+
+// @public
+export interface OptionsButtonStyles extends ControlBarButtonStyles {
+    // (undocumented)
+    menuStyles: Partial<OptionsButtonContextualMenuStyles>;
 }
 
 // @public
@@ -558,7 +573,7 @@ export interface ParticipantItemProps {
     onRenderIcon?: (props?: ParticipantItemProps) => JSX.Element | null;
     presence?: PersonaPresence;
     strings?: Partial<ParticipantItemStrings>;
-    styles?: ParticipantItemStylesProps;
+    styles?: ParticipantItemStyles;
     userId?: string;
 }
 
@@ -572,7 +587,7 @@ export interface ParticipantItemStrings {
 }
 
 // @public
-export interface ParticipantItemStylesProps extends BaseCustomStylesProps {
+export interface ParticipantItemStyles extends BaseCustomStylesProps {
     avatar?: IStyle;
     iconContainer?: IStyle;
     me?: IStyle;
@@ -583,6 +598,12 @@ export interface ParticipantItemStylesProps extends BaseCustomStylesProps {
 export const ParticipantList: (props: ParticipantListProps) => JSX.Element;
 
 // @public
+export interface ParticipantListItemStyles extends ParticipantItemStyles {
+    // (undocumented)
+    participantSubMenuItemsStyles: IContextualMenuItemStyles;
+}
+
+// @public
 export type ParticipantListProps = {
     participants: CommunicationParticipant[];
     myUserId?: string;
@@ -591,8 +612,14 @@ export type ParticipantListProps = {
     onRenderAvatar?: OnRenderAvatarCallback;
     onParticipantRemove?: (userId: string) => void;
     onFetchParticipantMenuItems?: ParticipantMenuItemsCallback;
-    increaseFlyoutItemTouchTargetSize?: boolean;
+    styles?: ParticipantListStyles;
 };
+
+// @public
+export interface ParticipantListStyles extends IRawStyle {
+    // (undocumented)
+    participantItemStyles: ParticipantListItemStyles;
+}
 
 // @public
 export type ParticipantMenuItemsCallback = (participantUserId: string, userId?: string, defaultMenuItems?: IContextualMenuItem[]) => IContextualMenuItem[];
@@ -609,11 +636,17 @@ export interface ParticipantRemovedSystemMessage extends SystemMessageCommon {
 export const ParticipantsButton: (props: ParticipantsButtonProps) => JSX.Element;
 
 // @public
-export interface ParticipantsButtonProps extends ControlBarButtonProps, ParticipantListProps {
+export interface ParticipantsButtonContextualMenuStyles extends IContextualMenuStyles {
+    // (undocumented)
+    menuItemStyles: IContextualMenuItemStyles;
+}
+
+// @public
+export interface ParticipantsButtonProps extends ControlBarButtonProps {
     callInvitationURL?: string;
-    increaseFlyoutItemTouchTargetSize?: boolean;
     onMuteAll?: () => void;
     onRenderParticipantList?: (props: ParticipantListProps) => JSX.Element | null;
+    participantListProps: ParticipantListProps;
     strings?: Partial<ParticipantsButtonStrings>;
     styles?: ParticipantsButtonStyles;
 }
@@ -629,7 +662,9 @@ export interface ParticipantsButtonStrings {
 
 // @public
 export interface ParticipantsButtonStyles extends ControlBarButtonStyles {
-    participantListContainerStyle?: IStyle;
+    container?: IStyle;
+    // (undocumented)
+    menuStyles: Partial<ParticipantsButtonContextualMenuStyles>;
 }
 
 // @public
