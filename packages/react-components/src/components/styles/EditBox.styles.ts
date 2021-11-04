@@ -8,8 +8,7 @@ import { mergeStyles } from '@fluentui/react';
  */
 export const editBoxStyle = mergeStyles({
   marginTop: '0.0875rem',
-  marginBottom: '0.0875rem',
-  paddingRight: '3.25rem'
+  marginBottom: '0.0875rem'
 });
 
 /**

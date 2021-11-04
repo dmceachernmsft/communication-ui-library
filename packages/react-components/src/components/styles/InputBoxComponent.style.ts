@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { mergeStyles, IStyle, FontWeights } from '@fluentui/react';
+import { mergeStyles, IStyle, FontWeights, IStackStyles } from '@fluentui/react';
 
 /**
  * @private
@@ -76,6 +76,16 @@ export const textFieldStyle = (errorColor: string, hasErrorMessage: boolean, dis
 /**
  * @private
  */
+export const rightAlignedChildrenContainer: IStackStyles = {
+  root: {
+    position: 'absolute',
+    right: 0
+  }
+};
+
+/**
+ * @private
+ */
 export const inputButtonStyle = mergeStyles({
   color: 'grey',
   cursor: 'pointer',
@@ -87,18 +97,3 @@ export const inputButtonStyle = mergeStyles({
   width: '1.0625rem',
   height: '1.0625rem'
 });
-
-/**
- * @private
- */
-export const inputButtonContainerStyle = (rtl?: boolean): string =>
-  mergeStyles({
-    display: 'flex',
-    justifyContent: 'center',
-    position: 'absolute',
-    margin: 'auto',
-    top: '0',
-    bottom: '0',
-    right: !rtl ? '0.3rem' : undefined,
-    left: rtl ? '0.3rem' : undefined
-  });

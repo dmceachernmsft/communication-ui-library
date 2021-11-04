@@ -283,7 +283,7 @@ const memoizeAllMessages = memoizeFnAll(
     showMessageDate: boolean,
     showMessageStatus: boolean,
     onRenderAvatar: OnRenderAvatarCallback | undefined,
-    shouldOverlapAvatarAndMessage: boolean,
+    isNarrow: boolean,
     styles: MessageThreadStyles | undefined,
     onRenderMessageStatus:
       | ((messageStatusIndicatorProps: MessageStatusIndicatorProps) => JSX.Element | null)
@@ -324,7 +324,7 @@ const memoizeAllMessages = memoizeFnAll(
 
         const chatItemMessageStyle =
           (message.mine ? styles?.myChatItemMessageContainer : styles?.chatItemMessageContainer) ||
-          defaultChatItemMessageContainer(shouldOverlapAvatarAndMessage);
+          defaultChatItemMessageContainer(isNarrow);
 
         const chatGutterStyles =
           message.attached === 'top' || message.attached === false ? gutterWithAvatar : gutterWithHiddenAvatar;
@@ -635,9 +635,11 @@ export const MessageThread = (props: MessageThreadProps): JSX.Element => {
   const chatThreadRef = useRef<HTMLElement>(null);
   const isLoadingChatMessagesRef = useRef(false);
 
-  // When the chat thread is narrow, we want to overlap the avatar on top of the chat message to save space
+  // When the chat thread is narrow, we perform space optimizations such as overlapping
+  // the avatar on top of the chat message and moving the chat accept/reject edit buttons
+  // to a new line
   const chatThreadWidth = useContainerWidth(chatThreadRef);
-  const shouldOverlapAvatarAndMessage = isNarrowWidth(chatThreadWidth);
+  const isNarrow = isNarrowWidth(chatThreadWidth);
 
   const messagesRef = useRef(messages);
   const setMessagesRef = (messagesWithAttachedValue: (ChatMessage | SystemMessage | CustomMessage)[]): void => {
@@ -841,7 +843,13 @@ export const MessageThread = (props: MessageThreadProps): JSX.Element => {
   const defaultChatMessageRenderer = useCallback(
     (messageProps: MessageProps) => {
       if (messageProps.message.messageType === 'chat') {
-        return <ChatMessageComponent {...messageProps} message={messageProps.message} />;
+        return (
+          <ChatMessageComponent
+            {...messageProps}
+            message={messageProps.message}
+            newLineForEditAcceptRejectButtons={isNarrow}
+          />
+        );
       }
       return <></>;
     },
@@ -895,7 +903,7 @@ export const MessageThread = (props: MessageThreadProps): JSX.Element => {
             showMessageDate,
             showMessageStatus,
             onRenderAvatar,
-            shouldOverlapAvatarAndMessage,
+            isNarrow,
             styles,
             onRenderMessageStatus,
             defaultStatusRenderer,
@@ -916,7 +924,7 @@ export const MessageThread = (props: MessageThreadProps): JSX.Element => {
       showMessageDate,
       showMessageStatus,
       onRenderAvatar,
-      shouldOverlapAvatarAndMessage,
+      isNarrow,
       styles,
       onRenderMessageStatus,
       defaultStatusRenderer,

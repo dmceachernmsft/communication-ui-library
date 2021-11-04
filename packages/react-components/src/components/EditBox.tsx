@@ -29,6 +29,7 @@ export type EditBoxProps = {
   onCancel?: () => void;
   onSubmit: (text: string) => void;
   initialValue: string;
+  newLineForEditAcceptRejectButtons: boolean;
   strings: MessageThreadStrings;
 };
 
@@ -78,6 +79,7 @@ export const EditBox = (props: EditBoxProps): JSX.Element => {
       inputClassName={editBoxStyle}
       placeholderText={strings.editBoxPlaceholderText}
       textValue={textValue}
+      inlineChildItems={props.newLineForEditAcceptRejectButtons}
       onChange={setText}
       onEnterKeyDown={() => {
         onSubmit(textValue);

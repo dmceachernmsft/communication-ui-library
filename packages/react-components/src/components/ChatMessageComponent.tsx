@@ -30,6 +30,7 @@ type ChatMessageProps = {
   disableEditing?: boolean;
   onUpdateMessage?: (messageId: string, content: string) => Promise<void>;
   onDeleteMessage?: (messageId: string) => Promise<void>;
+  newLineForEditAcceptRejectButtons?: boolean;
   strings: MessageThreadStrings;
 };
 
@@ -138,6 +139,7 @@ export const ChatMessageComponent = (props: ChatMessageProps): JSX.Element => {
     return (
       <EditBox
         initialValue={message.content ?? ''}
+        newLineForEditAcceptRejectButtons={props.newLineForEditAcceptRejectButtons ?? false}
         strings={strings}
         onSubmit={async (text) => {
           onUpdateMessage && message.messageId && (await onUpdateMessage(message.messageId, text));

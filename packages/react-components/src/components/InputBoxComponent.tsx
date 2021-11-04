@@ -7,7 +7,6 @@ import { BaseCustomStyles } from '../types';
 import {
   inputBoxStyle,
   inputBoxWrapperStyle,
-  inputButtonContainerStyle,
   inputButtonStyle,
   textFieldStyle,
   textContainerStyle
@@ -35,6 +34,7 @@ type InputBoxComponentProps = {
   'data-ui-id'?: string;
   id?: string;
   textValue: string;
+  newLineForEditAcceptRejectButtons: boolean;
   onChange: (event: FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string | undefined) => void;
   textFieldRef?: React.RefObject<ITextField>;
   inputClassName?: string;
@@ -95,27 +95,31 @@ export const InputBoxComponent = (props: InputBoxComponentProps): JSX.Element =>
 
   return (
     <Stack className={mergedRootStyle}>
-      <div className={mergedTextContainerStyle}>
-        <TextField
-          data-ui-id={dataUiId}
-          multiline
-          autoAdjustHeight
-          multiple={false}
-          resizable={false}
-          componentRef={textFieldRef}
-          id={id}
-          inputClassName={mergedTextFiledStyle}
-          placeholder={placeholderText}
-          value={textValue}
-          onChange={onChange}
-          autoComplete="off"
-          onKeyDown={onTexFieldKeyDown}
-          styles={mergedTextFieldStyle}
-          disabled={disabled}
-          errorMessage={errorMessage}
-        />
-        <div className={inputButtonContainerStyle(theme.rtl)}>{children}</div>
-      </div>
+      <Stack horizontal={true} verticalFill verticalAlign="center" className={mergedTextContainerStyle}>
+        <Stack.Item grow>
+          <TextField
+            data-ui-id={dataUiId}
+            multiline
+            autoAdjustHeight
+            multiple={false}
+            resizable={false}
+            componentRef={textFieldRef}
+            id={id}
+            inputClassName={mergedTextFiledStyle}
+            placeholder={placeholderText}
+            value={textValue}
+            onChange={onChange}
+            autoComplete="off"
+            onKeyDown={onTexFieldKeyDown}
+            styles={mergedTextFieldStyle}
+            disabled={disabled}
+            errorMessage={errorMessage}
+          />
+        </Stack.Item>
+        <Stack.Item>
+          <Stack horizontal>{children}</Stack>
+        </Stack.Item>
+      </Stack>
     </Stack>
   );
 };
