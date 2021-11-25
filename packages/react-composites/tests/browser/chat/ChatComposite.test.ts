@@ -113,16 +113,10 @@ test.describe('Chat Composite E2E Tests', () => {
 });
 
 test.describe('Chat Composite custom data model', () => {
-  test('can be viewed by user[1]', async ({ browser, serverUrl }) => {
-    const user = (await createChatThreadAndUsers(PARTICIPANTS))[1];
-    const url = buildUrl(serverUrl, user, { customDataModel: 'true' });
-    const page = await loadNewPage(browser, url);
+  test('can be viewed by user[1]', async ({ serverUrl, users, pages }) => {
+    const page = pages[0];
     await page.bringToFront();
-    await page.type(dataUiId(IDS.sendboxTextField), 'How the turn tables');
-    await page.keyboard.press('Enter');
-    await waitForSelector(page, `[data-ui-status="delivered"]`);
-    await waitForSelector(page, '#custom-data-model-typing-indicator');
-    await waitForSelector(page, '#custom-data-model-message');
+    await page.goto(buildUrl(serverUrl, users[0], { customDataModel: 'true' }));
     await stubMessageTimestamps(page);
     expect(await page.screenshot()).toMatchSnapshot('custom-data-model.png');
   });
