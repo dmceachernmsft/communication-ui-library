@@ -8,13 +8,14 @@ import ReactDOM from 'react-dom';
 import { _IdentifierProvider } from '@internal/react-components';
 import {
   ChatAdapter,
-  createAzureCommunicationChatAdapter,
   ChatComposite,
-  COMPOSITE_LOCALE_FR_FR
+  COMPOSITE_LOCALE_FR_FR,
+  createAzureCommunicationChatAdapterFromClient
 } from '../../../../src';
 import { IDS } from '../../common/constants';
 import { verifyParamExists } from '../../common/testAppUtils';
 import { fromFlatCommunicationIdentifier } from '@internal/acs-ui-common';
+import { createStatefulChatClient } from '@internal/chat-stateful-client';
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
@@ -35,15 +36,17 @@ function App(): JSX.Element {
 
   useEffect(() => {
     const initialize = async (): Promise<void> => {
-      setChatAdapter(
-        await createAzureCommunicationChatAdapter({
-          endpoint,
-          userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
-          displayName,
-          credential: new AzureCommunicationTokenCredential(token),
-          threadId
-        })
-      );
+      const chatClient = createStatefulChatClient({
+        userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
+        displayName,
+        endpoint,
+        credential: new AzureCommunicationTokenCredential(token)
+      });
+      const chatThreadClient = await chatClient.getChatThreadClient(threadId);
+      await chatClient.startRealtimeNotifications();
+      const adapter = await createAzureCommunicationChatAdapterFromClient(chatClient, chatThreadClient);
+      await adapter.fetchInitialData();
+      setChatAdapter(adapter);
     };
 
     initialize();

@@ -5,6 +5,8 @@
 /// This file is only for use by the test apps
 ///
 
+export const UI_TEST_TELEMETRY_TAG = 'uitest';
+
 /**
  * Throw error if required parameter exists.
  * Return parameter for easy usage.

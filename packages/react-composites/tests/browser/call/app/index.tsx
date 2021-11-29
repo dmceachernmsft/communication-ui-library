@@ -9,17 +9,17 @@ import { _IdentifierProvider } from '@internal/react-components';
 import {
   CallAdapter,
   CallAdapterState,
-  createAzureCommunicationCallAdapter,
   CallComposite,
-  CompositeLocale,
   COMPOSITE_LOCALE_FR_FR,
-  COMPOSITE_LOCALE_EN_US
+  COMPOSITE_LOCALE_EN_US,
+  createAzureCommunicationCallAdapterFromClient
 } from '../../../../src';
 import { IDS } from '../../common/constants';
-import { isMobile, verifyParamExists } from '../../common/testAppUtils';
+import { isMobile, UI_TEST_TELEMETRY_TAG, verifyParamExists } from '../../common/testAppUtils';
 import memoizeOne from 'memoize-one';
 import { IContextualMenuItem, mergeStyles } from '@fluentui/react';
 import { fromFlatCommunicationIdentifier } from '@internal/acs-ui-common';
+import { createStatefulCallClient } from '@internal/calling-stateful-client';
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
@@ -40,13 +40,23 @@ function App(): JSX.Element {
 
   useEffect(() => {
     const initialize = async (): Promise<void> => {
-      const newAdapter = await createAzureCommunicationCallAdapter({
-        userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
-        displayName,
-        credential: new AzureCommunicationTokenCredential(token),
-        locator: { groupId: groupId }
+      const callClient = createStatefulCallClient(
+        {
+          userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier
+        },
+        {
+          callClientOptions: {
+            diagnostics: {
+              tags: [UI_TEST_TELEMETRY_TAG]
+            }
+          }
+        }
+      );
+      const callAgent = await callClient.createCallAgent(new AzureCommunicationTokenCredential(token), { displayName });
+      const adapter = await createAzureCommunicationCallAdapterFromClient(callClient, callAgent, {
+        groupId: groupId
       });
-      setCallAdapter(wrapAdapterForTests(newAdapter));
+      setCallAdapter(wrapAdapterForTests(adapter));
     };
 
     initialize();
