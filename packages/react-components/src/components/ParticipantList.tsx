@@ -79,17 +79,11 @@ export type ParticipantListProps = {
   onFetchParticipantMenuItems?: ParticipantMenuItemsCallback;
   /** Styles for the {@link ParticipantList} */
   styles?: ParticipantListStyles;
-  /**
-   * Increase the height of the Participant items.
-   * Recommended when interacting using touch.
-   */
-  increaseParticipantItemSize: boolean;
 };
 
 const onRenderParticipantDefault = (
   participant: ParticipantListParticipant,
   strings: ParticipantItemStrings,
-  increaseParticipantItemSize: boolean,
   myUserId?: string,
   onRemoveParticipant?: (userId: string) => void,
   onRenderAvatar?: OnRenderAvatarCallback,
@@ -139,7 +133,6 @@ const onRenderParticipantDefault = (
         presence={presence}
         onRenderIcon={onRenderIcon}
         onRenderAvatar={onRenderAvatar}
-        increaseParticipantItemSize={increaseParticipantItemSize}
       />
     );
   }
@@ -182,8 +175,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
     onRemoveParticipant,
     onRenderAvatar,
     onRenderParticipant,
-    onFetchParticipantMenuItems,
-    increaseParticipantItemSize
+    onFetchParticipantMenuItems
   } = props;
 
   const ids = useIdentifiers();
@@ -224,7 +216,6 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
           : onRenderParticipantDefault(
               participant,
               strings,
-              increaseParticipantItemSize,
               myUserId,
               onRemoveParticipant,
               onRenderAvatar,

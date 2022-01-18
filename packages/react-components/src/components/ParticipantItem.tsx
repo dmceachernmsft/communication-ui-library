@@ -23,8 +23,7 @@ import {
   iconStyles,
   meContainerStyle,
   menuButtonContainerStyle,
-  participantItemContainerStyle,
-  participantItemIncreasedSizeStyles
+  participantItemContainerStyle
 } from './styles/ParticipantItem.styles';
 
 /**
@@ -93,11 +92,6 @@ export interface ParticipantItemProps {
    * Optional strings to override in component
    */
   strings?: Partial<ParticipantItemStrings>;
-  /**
-   * Increase the height of the Participant items.
-   * Recommended when interacting using touch.
-   */
-  increaseParticipantItemSize: boolean;
 }
 
 /**
@@ -108,17 +102,7 @@ export interface ParticipantItemProps {
  * @public
  */
 export const ParticipantItem = (props: ParticipantItemProps): JSX.Element => {
-  const {
-    userId,
-    displayName,
-    onRenderAvatar,
-    menuItems,
-    onRenderIcon,
-    presence,
-    styles,
-    me,
-    increaseParticipantItemSize
-  } = props;
+  const { userId, displayName, onRenderAvatar, menuItems, onRenderIcon, presence, styles, me } = props;
   const [itemHovered, setItemHovered] = useState<boolean>(false);
   const [menuHidden, setMenuHidden] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -187,16 +171,12 @@ export const ParticipantItem = (props: ParticipantItemProps): JSX.Element => {
     setMenuHidden(true);
   };
 
-  let participantItemDeviceContainerStyle = increaseParticipantItemSize
-    ? mergeStyles(participantItemContainerStyle, participantItemIncreasedSizeStyles)
-    : participantItemContainerStyle;
-
   return (
     <div
       ref={containerRef}
       role={'menuitem'}
       data-is-focusable={true}
-      className={mergeStyles(participantItemDeviceContainerStyle, styles?.root)}
+      className={mergeStyles(participantItemContainerStyle, styles?.root)}
       onMouseEnter={() => setItemHovered(true)}
       onMouseLeave={() => setItemHovered(false)}
       onClick={() => {

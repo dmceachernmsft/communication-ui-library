@@ -3,8 +3,6 @@
 
 import { mergeStyles } from '@fluentui/react';
 
-const MINIMUM_TOUCH_TARGET_HEIGHT_REM = 3;
-
 /**
  * @private
  */
@@ -50,13 +48,3 @@ export const iconStyles = mergeStyles({
 export const meContainerStyle = {
   paddingRight: '0.5rem'
 };
-
-/**
- * Styles that can be applied to ensure Participant items have the minimum touch target size.
- *
- * @private
- */
-export const participantItemIncreasedSizeStyles = mergeStyles({
-  height: `${MINIMUM_TOUCH_TARGET_HEIGHT_REM}rem`,
-  lineHeight: `${MINIMUM_TOUCH_TARGET_HEIGHT_REM}rem`
-});

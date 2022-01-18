@@ -170,9 +170,6 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
     onFetchParticipantMenuItems
   } = props;
 
-  // Track if the action menu was opened by touch - if so we increase the touch targets for the items
-  const [wasInteractionByTouch, setWasInteractionByTouch] = useState(false);
-
   const onRenderPeopleIcon = (): JSX.Element => (
     <HighContrastAwareIcon disabled={props.disabled} iconName="ControlButtonParticipants" />
   );
@@ -195,7 +192,6 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
         onRenderAvatar={onRenderAvatar}
         onRemoveParticipant={onRemoveParticipant}
         onFetchParticipantMenuItems={onFetchParticipantMenuItems}
-        increaseParticipantItemSize={wasInteractionByTouch}
         styles={merge(defaultParticipantListContainerStyle, styles?.menuStyles?.participantListStyles)}
       />
     );
@@ -207,8 +203,7 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
     onRenderParticipant,
     participants,
     styles?.menuStyles?.participantListStyles,
-    onFetchParticipantMenuItems,
-    wasInteractionByTouch
+    onFetchParticipantMenuItems
   ]);
 
   const onCopyCallback = useCallback(() => {
@@ -343,9 +338,6 @@ export const ParticipantsButton = (props: ParticipantsButtonProps): JSX.Element 
       onRenderIcon={onRenderIcon ?? onRenderPeopleIcon}
       strings={strings}
       labelKey={props.labelKey ?? 'participantsButtonLabel'}
-      onTouchStart={() => setWasInteractionByTouch(true)}
-      onPointerDown={() => setWasInteractionByTouch(false)}
-      onKeyDown={() => setWasInteractionByTouch(false)}
     />
   );
 };
