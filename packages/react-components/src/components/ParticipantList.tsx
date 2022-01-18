@@ -80,7 +80,7 @@ export type ParticipantListProps = {
   /** Styles for the {@link ParticipantList} */
   styles?: ParticipantListStyles;
   /**
-   * Optional Increase the height of the Participant items.
+   * Increase the height of the Participant items.
    * Recommended when interacting using touch.
    */
   increaseParticipantItemSize: boolean;
@@ -217,10 +217,7 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
 
   const participantItemStyles = merge(participantListItemStyle, props.styles?.participantItemStyles);
   return (
-    <Stack
-      data-ui-id={ids.participantList}
-      className={mergeStyles({ height: '3rem' }, participantListStyle, props.styles?.root)}
-    >
+    <Stack data-ui-id={ids.participantList} className={mergeStyles(participantListStyle, props.styles?.root)}>
       {displayedParticipants.map((participant: ParticipantListParticipant) =>
         onRenderParticipant
           ? onRenderParticipant(participant)
