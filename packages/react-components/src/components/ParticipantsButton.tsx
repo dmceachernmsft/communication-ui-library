@@ -11,7 +11,7 @@ import {
 } from '@fluentui/react';
 import { _formatString } from '@internal/acs-ui-common';
 import copy from 'copy-to-clipboard';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   ParticipantList,
   ParticipantListProps,
