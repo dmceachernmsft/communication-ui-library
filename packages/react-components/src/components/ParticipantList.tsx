@@ -79,11 +79,17 @@ export type ParticipantListProps = {
   onFetchParticipantMenuItems?: ParticipantMenuItemsCallback;
   /** Styles for the {@link ParticipantList} */
   styles?: ParticipantListStyles;
+  /**
+   * Optional Increase the height of the Participant items.
+   * Recommended when interacting using touch.
+   */
+  increaseParticipantItemSize: boolean;
 };
 
 const onRenderParticipantDefault = (
   participant: ParticipantListParticipant,
   strings: ParticipantItemStrings,
+  increaseParticipantItemSize: boolean,
   myUserId?: string,
   onRemoveParticipant?: (userId: string) => void,
   onRenderAvatar?: OnRenderAvatarCallback,
@@ -133,6 +139,7 @@ const onRenderParticipantDefault = (
         presence={presence}
         onRenderIcon={onRenderIcon}
         onRenderAvatar={onRenderAvatar}
+        increaseParticipantItemSize={increaseParticipantItemSize}
       />
     );
   }
@@ -175,7 +182,8 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
     onRemoveParticipant,
     onRenderAvatar,
     onRenderParticipant,
-    onFetchParticipantMenuItems
+    onFetchParticipantMenuItems,
+    increaseParticipantItemSize
   } = props;
 
   const ids = useIdentifiers();
@@ -209,13 +217,17 @@ export const ParticipantList = (props: ParticipantListProps): JSX.Element => {
 
   const participantItemStyles = merge(participantListItemStyle, props.styles?.participantItemStyles);
   return (
-    <Stack data-ui-id={ids.participantList} className={mergeStyles(participantListStyle, props.styles?.root)}>
+    <Stack
+      data-ui-id={ids.participantList}
+      className={mergeStyles({ height: '3rem' }, participantListStyle, props.styles?.root)}
+    >
       {displayedParticipants.map((participant: ParticipantListParticipant) =>
         onRenderParticipant
           ? onRenderParticipant(participant)
           : onRenderParticipantDefault(
               participant,
               strings,
+              increaseParticipantItemSize,
               myUserId,
               onRemoveParticipant,
               onRenderAvatar,
