@@ -74,7 +74,6 @@ const localVideoViewOptions = {
   isMirrored: true
 } as VideoStreamOptions;
 
-// TODO: UPDATE TO USE <LocalVideoTile /> and <RemoteVideoTile />
 const createLocalVideoTile = (
   displayName?: string,
   videoStream?: VideoGalleryStream,
