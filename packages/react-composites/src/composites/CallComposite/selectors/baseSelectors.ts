@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CallState as SDKCallStatus, DominantSpeakersInfo } from '@azure/communication-calling';
+import { CallState as SDKCallStatus } from '@azure/communication-calling';
 import {
   CallState,
   DeviceManagerState,
@@ -10,8 +10,7 @@ import {
   RemoteParticipantState
 } from '@internal/calling-stateful-client';
 import { CallAdapterState, CallCompositePage } from '../adapter/CallAdapter';
-import { _isInCall, _isPreviewOn } from '@internal/calling-component-bindings';
-import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
+import { _isInCall, _isPreviewOn, _dominantSpeakersWithFlatId } from '@internal/calling-component-bindings';
 
 /**
  * @private
@@ -85,7 +84,7 @@ export const getUserFacingDiagnostics = (state: CallAdapterState): DiagnosticsCa
  * @private
  */
 export const getDominantSpeakers = (state: CallAdapterState): undefined | string[] =>
-  state.call?.dominantSpeakers?.speakersList.map(toFlatCommunicationIdentifier);
+  _dominantSpeakersWithFlatId(state.call?.dominantSpeakers);
 
 /**
  * @private

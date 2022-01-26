@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
-import { _isInCall, _isPreviewOn } from '@internal/calling-component-bindings';
-import { LocalVideoStreamState, RemoteVideoStreamState } from '@internal/calling-stateful-client';
-import { VideoGalleryRemoteParticipant, VideoGalleryStream } from '@internal/react-components';
+import { _isInCall, _isPreviewOn, _videoGalleryRemoteParticipantsMemo } from '@internal/calling-component-bindings';
+import { LocalVideoStreamState } from '@internal/calling-stateful-client';
 import * as reselect from 'reselect';
 import {
   getDeviceManager,
@@ -41,12 +39,12 @@ export const localAndRemotePIPSelector = reselect.createSelector(
 
     // Get remote video stream details of the most dominant participant
     const [dominantRemoteParticipantId] = dominantSpeakers ?? [];
-    const dominantRemoteParticipant =
-      remoteParticipants &&
-      Object.values(remoteParticipants)?.find(
-        (remoteParticipant) =>
-          toFlatCommunicationIdentifier(remoteParticipant.identifier) === dominantRemoteParticipantId
-      );
+    const dominantRemoteParticipant = _videoGalleryRemoteParticipantsMemo(remoteParticipants).find(
+      (remoteParticipant) => remoteParticipant.userId === dominantRemoteParticipantId
+    );
+    console.log(dominantSpeakers);
+    console.log(_videoGalleryRemoteParticipantsMemo(remoteParticipants));
+    console.log(dominantRemoteParticipant);
 
     return {
       localParticipant: {
@@ -57,62 +55,7 @@ export const localAndRemotePIPSelector = reselect.createSelector(
           renderElement: localVideoStream?.view?.target
         }
       },
-      dominantRemoteParticipant:
-        dominantRemoteParticipant &&
-        convertRemoteParticipantToVideoGalleryRemoteParticipant(
-          toFlatCommunicationIdentifier(dominantRemoteParticipant.identifier),
-          dominantRemoteParticipant.isMuted,
-          dominantRemoteParticipant.isSpeaking && !dominantRemoteParticipant.isMuted,
-          dominantRemoteParticipant.videoStreams,
-          dominantRemoteParticipant.displayName
-        )
+      dominantRemoteParticipant
     };
   }
 );
-
-const convertRemoteParticipantToVideoGalleryRemoteParticipant = (
-  userId: string,
-  isMuted: boolean,
-  isSpeaking: boolean,
-  videoStreams: { [key: number]: RemoteVideoStreamState },
-  displayName?: string
-): VideoGalleryRemoteParticipant => {
-  const rawVideoStreamsArray = Object.values(videoStreams);
-  let videoStream: VideoGalleryStream | undefined = undefined;
-  let screenShareStream: VideoGalleryStream | undefined = undefined;
-
-  if (rawVideoStreamsArray[0]) {
-    if (rawVideoStreamsArray[0].mediaStreamType === 'Video') {
-      videoStream = convertRemoteVideoStreamToVideoGalleryStream(rawVideoStreamsArray[0]);
-    } else {
-      screenShareStream = convertRemoteVideoStreamToVideoGalleryStream(rawVideoStreamsArray[0]);
-    }
-  }
-
-  if (rawVideoStreamsArray[1]) {
-    if (rawVideoStreamsArray[1].mediaStreamType === 'ScreenSharing') {
-      screenShareStream = convertRemoteVideoStreamToVideoGalleryStream(rawVideoStreamsArray[1]);
-    } else {
-      videoStream = convertRemoteVideoStreamToVideoGalleryStream(rawVideoStreamsArray[1]);
-    }
-  }
-
-  return {
-    userId,
-    displayName,
-    isMuted,
-    isSpeaking,
-    videoStream,
-    screenShareStream,
-    isScreenSharingOn: screenShareStream !== undefined && screenShareStream.isAvailable
-  };
-};
-
-const convertRemoteVideoStreamToVideoGalleryStream = (stream: RemoteVideoStreamState): VideoGalleryStream => {
-  return {
-    id: stream.id,
-    isAvailable: stream.isAvailable,
-    isMirrored: stream.view?.isMirrored,
-    renderElement: stream.view?.target
-  };
-};

@@ -23,7 +23,6 @@ export interface _PictureInPictureInPictureProps {
   secondaryTile?: _PictureInPictureInPictureTileProps;
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */ // REMOVE WHEN PROPS USED (BELOW)
 /**
  * Component that displays a video feed for use as a Picture-in-Picture style component.
  * It contains a secondary video feed resulting in an inner Picture-in-Picture style feed.
