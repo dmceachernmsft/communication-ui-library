@@ -9,6 +9,7 @@ import { CallCompositeOptions } from '../CallComposite';
 import { CallArrangement } from '../components/CallArrangement';
 import { MediaGallery } from '../components/MediaGallery';
 import { NetworkReconnectTile } from '../components/NetworkReconnectTile';
+import { PiPiPContainer } from '../components/SmartPictureInPictureInPicture';
 import { useHandlers } from '../hooks/useHandlers';
 import { usePropsFor } from '../hooks/usePropsFor';
 import { useSelector } from '../hooks/useSelector';
@@ -58,35 +59,38 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
   const callControlOptions = mobileView ? reduceCallControlsForMobile(options?.callControls) : options?.callControls;
 
   return (
-    <CallArrangement
-      complianceBannerProps={{ ...complianceBannerProps }}
-      errorBarProps={options?.errorBar !== false && { ...errorBarProps }}
-      mutedNotificationProps={mutedNotificationProps}
-      callControlProps={{
-        callInvitationURL: callInvitationURL,
-        onFetchParticipantMenuItems: onFetchParticipantMenuItems,
-        options: callControlOptions,
-        increaseFlyoutItemSize: mobileView
-      }}
-      mobileView={mobileView}
-      onRenderGalleryContent={() =>
-        callStatus === 'Connected' ? (
-          isNetworkHealthy(networkReconnectTileProps.networkReconnectValue) ? (
-            <MediaGallery
-              {...mediaGalleryProps}
-              {...mediaGalleryHandlers}
-              onRenderAvatar={onRenderAvatar}
-              onFetchAvatarPersonaData={onFetchAvatarPersonaData}
-            />
+    <>
+      <PiPiPContainer />
+      <CallArrangement
+        complianceBannerProps={{ ...complianceBannerProps }}
+        errorBarProps={options?.errorBar !== false && { ...errorBarProps }}
+        mutedNotificationProps={mutedNotificationProps}
+        callControlProps={{
+          callInvitationURL: callInvitationURL,
+          onFetchParticipantMenuItems: onFetchParticipantMenuItems,
+          options: callControlOptions,
+          increaseFlyoutItemSize: mobileView
+        }}
+        mobileView={mobileView}
+        onRenderGalleryContent={() =>
+          callStatus === 'Connected' ? (
+            isNetworkHealthy(networkReconnectTileProps.networkReconnectValue) ? (
+              <MediaGallery
+                {...mediaGalleryProps}
+                {...mediaGalleryHandlers}
+                onRenderAvatar={onRenderAvatar}
+                onFetchAvatarPersonaData={onFetchAvatarPersonaData}
+              />
+            ) : (
+              <NetworkReconnectTile {...networkReconnectTileProps} />
+            )
           ) : (
-            <NetworkReconnectTile {...networkReconnectTileProps} />
+            <></>
           )
-        ) : (
-          <></>
-        )
-      }
-      dataUiId={'call-page'}
-    />
+        }
+        dataUiId={'call-page'}
+      />
+    </>
   );
 };
 

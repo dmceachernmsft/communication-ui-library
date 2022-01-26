@@ -20,7 +20,7 @@ export interface _PictureInPictureInPictureProps {
   onClick?: () => void;
 
   primaryTile: _PictureInPictureInPictureTileProps;
-  secondaryTile: _PictureInPictureInPictureTileProps;
+  secondaryTile?: _PictureInPictureInPictureTileProps;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */ // REMOVE WHEN PROPS USED (BELOW)
@@ -38,7 +38,7 @@ export const _PictureInPictureInPicture = (props: _PictureInPictureInPictureProp
     <PictureInPictureInPictureContainer
       onClick={props.onClick}
       primaryView={<PictureInPictureInPicturePrimaryTile {...props.primaryTile} />}
-      secondaryView={<PictureInPictureInPictureSecondaryTile {...props.secondaryTile} />}
+      secondaryView={props.secondaryTile && <PictureInPictureInPictureSecondaryTile {...props.secondaryTile} />}
     />
   );
 };
@@ -48,7 +48,7 @@ export const _PictureInPictureInPicture = (props: _PictureInPictureInPictureProp
  */
 const PictureInPictureInPictureContainer = (props: {
   primaryView: ReactChild;
-  secondaryView: ReactChild;
+  secondaryView?: ReactChild;
   onClick?: () => void;
 }): JSX.Element => (
   <div style={tileContainerStyles} onClick={props.onClick}>
@@ -58,6 +58,7 @@ const PictureInPictureInPictureContainer = (props: {
 );
 
 const tileContainerStyles: React.CSSProperties = {
+  display: 'inline-block',
   position: 'relative',
   cursor: 'pointer'
 };
