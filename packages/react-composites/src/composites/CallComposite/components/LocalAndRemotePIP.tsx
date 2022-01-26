@@ -4,50 +4,18 @@
 import React, { useCallback } from 'react';
 import {
   StreamMedia,
-  VideoGallery,
   VideoGalleryStream,
   VideoStreamOptions,
   _PictureInPictureInPicture,
   _PictureInPictureInPictureTileProps
 } from '@internal/react-components';
-import { pictureInPictureInPictureSelector } from '../selectors/pictureInPictureInPictureSelector';
-import { useSelector } from '../hooks/useSelector';
-import { useHandlers } from '../hooks/useHandlers';
-import { usePropsFor } from '../hooks/usePropsFor';
-
-/** @private */
-export const PiPiPContainer = (): JSX.Element => {
-  // just testing how use props would work
-  const pipipProps = useSelector(pictureInPictureInPictureSelector);
-  const handlers = useHandlers(SmartPictureInPictureInPicture);
-  const videoGalleryProps = usePropsFor(VideoGallery);
-
-  const localParticipant = {
-    displayName: 'test display name',
-    videoStream: pipipProps.localParticipantVideoStream
-  };
-
-  const [dominantParticipantId] = videoGalleryProps.dominantSpeakers ?? [];
-  const dominantParticipant = videoGalleryProps.remoteParticipants.find(
-    (remoteParticipant) => remoteParticipant.userId === dominantParticipantId
-  );
-
-  return (
-    <SmartPictureInPictureInPicture
-      dominantRemoteParticipant={dominantParticipant}
-      localParticipant={localParticipant}
-      onClick={() => alert('clicked!')}
-      {...handlers}
-    />
-  );
-};
 
 /**
  * @private
  */
-export interface SmartPictureInPictureInPictureProps {
+export interface LocalAndRemotePIPProps {
   onClick: () => void;
-  localParticipant: { displayName: string; videoStream: VideoGalleryStream };
+  localParticipant: { displayName?: string; videoStream?: VideoGalleryStream };
   dominantRemoteParticipant?: {
     userId: string;
     displayName?: string;
@@ -67,7 +35,7 @@ export interface SmartPictureInPictureInPictureProps {
 /**
  * @private
  */
-export const SmartPictureInPictureInPicture = (props: SmartPictureInPictureInPictureProps): JSX.Element => {
+export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element => {
   const localVideoTile = useCallback(
     () =>
       createLocalVideoTile(

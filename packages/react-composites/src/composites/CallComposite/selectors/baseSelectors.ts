@@ -1,15 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CallState as SDKCallStatus } from '@azure/communication-calling';
+import { CallState as SDKCallStatus, DominantSpeakersInfo } from '@azure/communication-calling';
 import {
   CallState,
   DeviceManagerState,
   DiagnosticsCallFeatureState,
-  LocalVideoStreamState
+  LocalVideoStreamState,
+  RemoteParticipantState
 } from '@internal/calling-stateful-client';
 import { CallAdapterState, CallCompositePage } from '../adapter/CallAdapter';
 import { _isInCall, _isPreviewOn } from '@internal/calling-component-bindings';
+import { toFlatCommunicationIdentifier } from '@internal/acs-ui-common';
+
+/**
+ * @private
+ */
+export const getDisplayName = (state: CallAdapterState): string | undefined => state.displayName;
 
 /**
  * @private
@@ -73,3 +80,20 @@ export const getIsRecordingActive = (state: CallAdapterState): boolean => !!stat
  */
 export const getUserFacingDiagnostics = (state: CallAdapterState): DiagnosticsCallFeatureState | undefined =>
   state.call?.diagnostics;
+
+/**
+ * @private
+ */
+export const getDominantSpeakers = (state: CallAdapterState): undefined | string[] =>
+  state.call?.dominantSpeakers?.speakersList.map(toFlatCommunicationIdentifier);
+
+/**
+ * @private
+ */
+export const getRemoteParticipants = (
+  state: CallAdapterState
+):
+  | undefined
+  | {
+      [keys: string]: RemoteParticipantState;
+    } => state.call?.remoteParticipants;
