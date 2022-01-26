@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import {
   StreamMedia,
   VideoGalleryStream,
@@ -36,7 +36,7 @@ export interface LocalAndRemotePIPProps {
  * @private
  */
 export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element => {
-  const localVideoTile = useCallback(
+  const localVideoTile = useMemo(
     () =>
       createLocalVideoTile(
         props.localParticipant.displayName,
@@ -44,9 +44,9 @@ export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element =>
         props.onCreateLocalStreamView
       ),
     [props.localParticipant.displayName, props.localParticipant?.videoStream, props.onCreateLocalStreamView]
-  )();
+  );
 
-  const remoteVideoTile = useCallback(
+  const remoteVideoTile = useMemo(
     () =>
       props.dominantRemoteParticipant &&
       createRemoteVideoTile(
@@ -56,7 +56,7 @@ export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element =>
         props.onCreateRemoteStreamView
       ),
     [props.dominantRemoteParticipant, props.onCreateRemoteStreamView]
-  )();
+  );
 
   return (
     <_PictureInPictureInPicture
