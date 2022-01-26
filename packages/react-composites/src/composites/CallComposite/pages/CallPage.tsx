@@ -9,7 +9,6 @@ import { CallCompositeOptions } from '../CallComposite';
 import { CallArrangement } from '../components/CallArrangement';
 import { MediaGallery } from '../components/MediaGallery';
 import { NetworkReconnectTile } from '../components/NetworkReconnectTile';
-import { LocalAndRemotePIP } from '../components/LocalAndRemotePIP';
 import { useHandlers } from '../hooks/useHandlers';
 import { usePropsFor } from '../hooks/usePropsFor';
 import { useSelector } from '../hooks/useSelector';
@@ -19,10 +18,6 @@ import { mediaGallerySelector } from '../selectors/mediaGallerySelector';
 import { mutedNotificationSelector } from '../selectors/mutedNotificationSelector';
 import { networkReconnectTileSelector } from '../selectors/networkReconnectTileSelector';
 import { reduceCallControlsForMobile } from '../utils';
-
-import { localAndRemotePIPSelector } from '../selectors/localAndRemotePIPSelector';
-import { useSelector } from '../hooks/useSelector';
-import { useHandlers } from '../hooks/useHandlers';
 
 /**
  * @private
@@ -59,45 +54,39 @@ export const CallPage = (props: CallPageProps): JSX.Element => {
   const mutedNotificationProps = useSelector(mutedNotificationSelector);
   const networkReconnectTileProps = useSelector(networkReconnectTileSelector);
 
-  const pipProps = useSelector(localAndRemotePIPSelector);
-  const handlers = useHandlers(LocalAndRemotePIP);
-
   // Reduce the controls shown when mobile view is enabled.
   const callControlOptions = mobileView ? reduceCallControlsForMobile(options?.callControls) : options?.callControls;
 
   return (
-    <>
-      <LocalAndRemotePIP {...pipProps} {...handlers} onClick={() => alert('i was clicked!')} />
-      <CallArrangement
-        complianceBannerProps={{ ...complianceBannerProps }}
-        errorBarProps={options?.errorBar !== false && { ...errorBarProps }}
-        mutedNotificationProps={mutedNotificationProps}
-        callControlProps={{
-          callInvitationURL: callInvitationURL,
-          onFetchParticipantMenuItems: onFetchParticipantMenuItems,
-          options: callControlOptions,
-          increaseFlyoutItemSize: mobileView
-        }}
-        mobileView={mobileView}
-        onRenderGalleryContent={() =>
-          callStatus === 'Connected' ? (
-            isNetworkHealthy(networkReconnectTileProps.networkReconnectValue) ? (
-              <MediaGallery
-                {...mediaGalleryProps}
-                {...mediaGalleryHandlers}
-                onRenderAvatar={onRenderAvatar}
-                onFetchAvatarPersonaData={onFetchAvatarPersonaData}
-              />
-            ) : (
-              <NetworkReconnectTile {...networkReconnectTileProps} />
-            )
+    <CallArrangement
+      complianceBannerProps={{ ...complianceBannerProps }}
+      errorBarProps={options?.errorBar !== false && { ...errorBarProps }}
+      mutedNotificationProps={mutedNotificationProps}
+      callControlProps={{
+        callInvitationURL: callInvitationURL,
+        onFetchParticipantMenuItems: onFetchParticipantMenuItems,
+        options: callControlOptions,
+        increaseFlyoutItemSize: mobileView
+      }}
+      mobileView={mobileView}
+      onRenderGalleryContent={() =>
+        callStatus === 'Connected' ? (
+          isNetworkHealthy(networkReconnectTileProps.networkReconnectValue) ? (
+            <MediaGallery
+              {...mediaGalleryProps}
+              {...mediaGalleryHandlers}
+              onRenderAvatar={onRenderAvatar}
+              onFetchAvatarPersonaData={onFetchAvatarPersonaData}
+            />
           ) : (
-            <></>
+            <NetworkReconnectTile {...networkReconnectTileProps} />
           )
-        }
-        dataUiId={'call-page'}
-      />
-    </>
+        ) : (
+          <></>
+        )
+      }
+      dataUiId={'call-page'}
+    />
   );
 };
 
