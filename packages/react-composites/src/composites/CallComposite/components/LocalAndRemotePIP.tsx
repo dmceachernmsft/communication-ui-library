@@ -44,7 +44,7 @@ export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element =>
         props.onCreateLocalStreamView
       ),
     [props.localParticipant.displayName, props.localParticipant?.videoStream, props.onCreateLocalStreamView]
-  );
+  )();
 
   const remoteVideoTile = useCallback(
     () =>
@@ -56,13 +56,15 @@ export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element =>
         props.onCreateRemoteStreamView
       ),
     [props.dominantRemoteParticipant, props.onCreateRemoteStreamView]
-  );
+  )();
 
   return (
     <_PictureInPictureInPicture
       onClick={props.onClick}
-      primaryTile={props.dominantRemoteParticipant ? remoteVideoTile()! : localVideoTile()}
-      secondaryTile={props.dominantRemoteParticipant ? localVideoTile() : undefined}
+      // If there are no remote participants, show the local participant as the primary tile
+      primaryTile={remoteVideoTile ?? localVideoTile}
+      // If we are showing the local participant as the primary tile, show nothing for the secondary tile
+      secondaryTile={remoteVideoTile ? localVideoTile : undefined}
     />
   );
 };
@@ -87,13 +89,13 @@ const createLocalVideoTile = (
     renderElement: videoStream?.renderElement ? (
       <StreamMedia videoStreamElement={videoStream.renderElement} />
     ) : undefined,
-    displayName: displayName //TODO [jaburnsi]: update to initialsName
+    displayName: displayName
   };
 };
 
 const remoteVideoViewOptions = {
   scalingMode: 'Crop',
-  isMirrored: true
+  isMirrored: false
 } as VideoStreamOptions;
 
 const createRemoteVideoTile = (
@@ -111,6 +113,6 @@ const createRemoteVideoTile = (
     renderElement: videoStream?.renderElement ? (
       <StreamMedia videoStreamElement={videoStream.renderElement} />
     ) : undefined,
-    displayName: displayName //TODO [jaburnsi]: update to initialsName
+    displayName: displayName
   };
 };
