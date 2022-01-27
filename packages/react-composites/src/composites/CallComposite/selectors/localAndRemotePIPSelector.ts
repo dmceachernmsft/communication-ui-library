@@ -32,19 +32,16 @@ export const localAndRemotePIPSelector = reselect.createSelector(
     if (_isInCall(callStatus.callStatus)) {
       localVideoStream = localVideoStreams?.find((i) => i.mediaStreamType === 'Video');
     } else if (_isPreviewOn(deviceManager)) {
-      // TODO: we should take in a LocalVideoStream that developer wants to use as their 'Preview' view. We should also
-      // handle cases where 'Preview' view is in progress and not necessary completed.
       localVideoStream = deviceManager.unparentedViews[0];
     }
 
     // Get remote video stream details of the most dominant participant
+    const covertedRemoteParticipants = _videoGalleryRemoteParticipantsMemo(remoteParticipants);
     const [dominantRemoteParticipantId] = dominantSpeakers ?? [];
-    const dominantRemoteParticipant = _videoGalleryRemoteParticipantsMemo(remoteParticipants).find(
-      (remoteParticipant) => remoteParticipant.userId === dominantRemoteParticipantId
-    );
-    console.log(dominantSpeakers);
-    console.log(_videoGalleryRemoteParticipantsMemo(remoteParticipants));
-    console.log(dominantRemoteParticipant);
+    const dominantRemoteParticipant =
+      covertedRemoteParticipants.find(
+        (remoteParticipant) => remoteParticipant.userId === dominantRemoteParticipantId
+      ) ?? covertedRemoteParticipants[0];
 
     return {
       localParticipant: {
