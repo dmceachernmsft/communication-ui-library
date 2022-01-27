@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   StreamMedia,
   VideoGalleryStream,
@@ -36,26 +36,46 @@ export interface LocalAndRemotePIPProps {
  * @private
  */
 export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element => {
+  const {
+    localParticipant,
+    dominantRemoteParticipant,
+    onCreateLocalStreamView,
+    onDisposeLocalStreamView,
+    onCreateRemoteStreamView,
+    onDisposeRemoteStreamView
+  } = props;
+
+  useEffect(() => {
+    if (localParticipant.videoStream?.isAvailable && !localParticipant.videoStream.renderElement) {
+      onCreateLocalStreamView && onCreateLocalStreamView(localVideoViewOptions);
+    }
+
+    return () => {
+      onDisposeLocalStreamView && onDisposeLocalStreamView();
+    };
+  }, [localParticipant, onCreateLocalStreamView, onDisposeLocalStreamView]);
+
   const localVideoTile = useMemo(
-    () =>
-      createLocalVideoTile(
-        props.localParticipant.displayName,
-        props.localParticipant?.videoStream,
-        props.onCreateLocalStreamView
-      ),
-    [props.localParticipant.displayName, props.localParticipant?.videoStream, props.onCreateLocalStreamView]
+    () => createVideoTile(localParticipant.displayName, localParticipant?.videoStream),
+    [localParticipant.displayName, localParticipant?.videoStream]
   );
+
+  useEffect(() => {
+    if (dominantRemoteParticipant?.videoStream?.isAvailable && !dominantRemoteParticipant.videoStream.renderElement) {
+      onCreateRemoteStreamView && onCreateRemoteStreamView(dominantRemoteParticipant.userId, remoteVideoViewOptions);
+    }
+    return () => {
+      onDisposeRemoteStreamView &&
+        dominantRemoteParticipant?.videoStream?.renderElement &&
+        onDisposeRemoteStreamView(dominantRemoteParticipant.userId);
+    };
+  }, [dominantRemoteParticipant, onCreateRemoteStreamView, onDisposeRemoteStreamView]);
 
   const remoteVideoTile = useMemo(
     () =>
       props.dominantRemoteParticipant &&
-      createRemoteVideoTile(
-        props.dominantRemoteParticipant.userId,
-        props.dominantRemoteParticipant.displayName,
-        props.dominantRemoteParticipant.videoStream,
-        props.onCreateRemoteStreamView
-      ),
-    [props.dominantRemoteParticipant, props.onCreateRemoteStreamView]
+      createVideoTile(props.dominantRemoteParticipant.displayName, props.dominantRemoteParticipant.videoStream),
+    [props.dominantRemoteParticipant]
   );
 
   return (
@@ -69,44 +89,20 @@ export const LocalAndRemotePIP = (props: LocalAndRemotePIPProps): JSX.Element =>
   );
 };
 
-const localVideoViewOptions = {
+const localVideoViewOptions: VideoStreamOptions = {
   scalingMode: 'Crop',
   isMirrored: true
-} as VideoStreamOptions;
-
-const createLocalVideoTile = (
-  displayName?: string,
-  videoStream?: VideoGalleryStream,
-  onCreateLocalStreamView?: (options?: VideoStreamOptions) => Promise<void>
-): _PictureInPictureInPictureTileProps => {
-  if (videoStream && !videoStream.renderElement) {
-    onCreateLocalStreamView && onCreateLocalStreamView(localVideoViewOptions);
-  }
-
-  return {
-    orientation: 'portrait', // TODO: when the calling SDK provides height/width stream information - update this to reflect the stream orientation.
-    renderElement: videoStream?.renderElement ? (
-      <StreamMedia videoStreamElement={videoStream.renderElement} />
-    ) : undefined,
-    displayName: displayName
-  };
 };
 
-const remoteVideoViewOptions = {
+const remoteVideoViewOptions: VideoStreamOptions = {
   scalingMode: 'Crop',
   isMirrored: false
-} as VideoStreamOptions;
+};
 
-const createRemoteVideoTile = (
-  participantId: string,
+const createVideoTile = (
   displayName?: string,
-  videoStream?: VideoGalleryStream,
-  onCreateRemoteStreamView?: (userId: string, options?: VideoStreamOptions) => Promise<void>
+  videoStream?: VideoGalleryStream
 ): _PictureInPictureInPictureTileProps => {
-  if (videoStream && !videoStream.renderElement) {
-    onCreateRemoteStreamView && onCreateRemoteStreamView(participantId, remoteVideoViewOptions);
-  }
-
   return {
     orientation: 'portrait', // TODO: when the calling SDK provides height/width stream information - update this to reflect the stream orientation.
     renderElement: videoStream?.renderElement ? (
