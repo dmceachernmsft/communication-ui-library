@@ -470,19 +470,23 @@ export const createAzureCommunicationMeetingAdapter = async ({
   return new AzureCommunicationMeetingAdapter(callAdapter, chatAdapter);
 };
 
+/* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */
 /**
  * Arguments for {@link createAzureCommunicationMeetingAdapterFromClient}
  *
  * @beta
  */
 export type AzureCommunicationMeetingAdapterFromClientArgs = {
-  callLocator: CallAdapterLocator | TeamsMeetingLinkLocator;
+  callLocator:
+    | TeamsMeetingLinkLocator
+    | /* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */ CallAdapterLocator;
   callAgent: CallAgent;
   callClient: StatefulCallClient;
   chatClient: StatefulChatClient;
   chatThreadClient: ChatThreadClient;
 };
 
+/* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */
 /**
  * Create a {@link MeetingAdapter} using the provided {@link StatefulChatClient} and {@link StatefulCallClient}.
  *
@@ -499,7 +503,6 @@ export const createAzureCommunicationMeetingAdapterFromClients = async ({
   chatThreadClient
 }: AzureCommunicationMeetingAdapterFromClientArgs): Promise<MeetingAdapter> => {
   const createCallAdapterPromise = createAzureCommunicationCallAdapterFromClient(callClient, callAgent, callLocator);
-
   const createChatAdapterPromise = createAzureCommunicationChatAdapterFromClient(chatClient, chatThreadClient);
   const [callAdapter, chatAdapter] = await Promise.all([createCallAdapterPromise, createChatAdapterPromise]);
   return new AzureCommunicationMeetingAdapter(callAdapter, chatAdapter);
