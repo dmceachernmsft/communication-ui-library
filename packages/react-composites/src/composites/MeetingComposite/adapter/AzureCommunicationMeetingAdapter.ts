@@ -45,11 +45,13 @@ import { getChatThreadFromTeamsLink } from './parseTeamsUrl';
 import { AdapterError } from '../../common/adapters';
 
 /* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */
+import { CallParticipantsLocator } from '../../CallComposite/adapter/AzureCommunicationCallAdapter';
+
 import {
   CallAdapterLocator,
-  CallParticipantsLocator,
   createAzureCommunicationCallAdapterFromClient
 } from '../../CallComposite/adapter/AzureCommunicationCallAdapter';
+
 import { StatefulCallClient } from '@internal/calling-stateful-client';
 import { StatefulChatClient } from '@internal/chat-stateful-client';
 import { ChatThreadClient } from '@azure/communication-chat';
@@ -470,23 +472,19 @@ export const createAzureCommunicationMeetingAdapter = async ({
   return new AzureCommunicationMeetingAdapter(callAdapter, chatAdapter);
 };
 
-/* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */
 /**
  * Arguments for {@link createAzureCommunicationMeetingAdapterFromClient}
  *
  * @beta
  */
 export type AzureCommunicationMeetingAdapterFromClientArgs = {
-  callLocator:
-    | TeamsMeetingLinkLocator
-    | /* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */ CallAdapterLocator;
+  callLocator: TeamsMeetingLinkLocator | CallAdapterLocator;
   callAgent: CallAgent;
   callClient: StatefulCallClient;
   chatClient: StatefulChatClient;
   chatThreadClient: ChatThreadClient;
 };
 
-/* @conditional-compile-remove-from(stable) TEAMS_ADHOC_CALLING */
 /**
  * Create a {@link MeetingAdapter} using the provided {@link StatefulChatClient} and {@link StatefulCallClient}.
  *
