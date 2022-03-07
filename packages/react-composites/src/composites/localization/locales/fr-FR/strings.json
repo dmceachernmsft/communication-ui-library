@@ -46,11 +46,13 @@
     "peopleButtonLabel": "Personnes",
     "chatButtonLabel": "Clavardage",
     "moreDrawerMicrophoneMenuTitle": "Microphone",
-    "moreDrawerSpeakerMenuTitle": "Speaker",
+    "moreDrawerSpeakerMenuTitle": "Haut-parleur",
     "peoplePaneTitle": "Personnes",
     "peoplePaneSubTitle": "Pendant cet appel",
     "chatPaneTitle": "Clavardage",
     "chatButtonNewMessageNotificationLabel": "Nouveau message",
-    "pictureInPictureTileAriaLabel": "Flux vidéo. Cliquez pour revenir à l’écran d’appel."
+    "pictureInPictureTileAriaLabel": "Flux vidéo. Cliquez pour revenir à l’écran d’appel.",
+    "removeMenuLabel": "Supprimer",
+    "copyInviteLinkButtonLabel": "Copier le lien d'invitation"
   }
 }

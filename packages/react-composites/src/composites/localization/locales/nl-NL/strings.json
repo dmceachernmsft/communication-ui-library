@@ -45,12 +45,14 @@
   "callWithChat": {
     "peopleButtonLabel": "Personen",
     "chatButtonLabel": "Chatten",
-    "moreDrawerMicrophoneMenuTitle": "Microphone",
-    "moreDrawerSpeakerMenuTitle": "Speaker",
+    "moreDrawerMicrophoneMenuTitle": "Microfoon",
+    "moreDrawerSpeakerMenuTitle": "Luidspreker",
     "peoplePaneTitle": "Personen",
     "peoplePaneSubTitle": "In dit gesprek",
     "chatPaneTitle": "Chatten",
     "chatButtonNewMessageNotificationLabel": "Nieuw bericht",
-    "pictureInPictureTileAriaLabel": "Videofeeds. Klik om terug te keren naar het oproepscherm."
+    "pictureInPictureTileAriaLabel": "Videofeeds. Klik om terug te keren naar het oproepscherm.",
+    "removeMenuLabel": "Verwijderen",
+    "copyInviteLinkButtonLabel": "Uitnodigingskoppeling kopiëren"
   }
 }

@@ -45,12 +45,14 @@
   "callWithChat": {
     "peopleButtonLabel": "ユーザー",
     "chatButtonLabel": "チャット",
-    "moreDrawerMicrophoneMenuTitle": "Microphone",
-    "moreDrawerSpeakerMenuTitle": "Speaker",
+    "moreDrawerMicrophoneMenuTitle": "マイク",
+    "moreDrawerSpeakerMenuTitle": "スピーカー",
     "peoplePaneTitle": "ユーザー",
     "peoplePaneSubTitle": "この通話で",
     "chatPaneTitle": "チャット",
     "chatButtonNewMessageNotificationLabel": "新規メッセージ",
-    "pictureInPictureTileAriaLabel": "ビデオ フィード。 クリックすると通話画面に戻ります。"
+    "pictureInPictureTileAriaLabel": "ビデオ フィード。 クリックすると通話画面に戻ります。",
+    "removeMenuLabel": "削除",
+    "copyInviteLinkButtonLabel": "招待用のリンクをコピー"
   }
 }

@@ -45,12 +45,14 @@
   "callWithChat": {
     "peopleButtonLabel": "Kişiler",
     "chatButtonLabel": "Sohbet",
-    "moreDrawerMicrophoneMenuTitle": "Microphone",
-    "moreDrawerSpeakerMenuTitle": "Speaker",
+    "moreDrawerMicrophoneMenuTitle": "Mikrofon",
+    "moreDrawerSpeakerMenuTitle": "Hoparlör",
     "peoplePaneTitle": "Kişiler",
     "peoplePaneSubTitle": "Bu aramada",
     "chatPaneTitle": "Sohbet",
     "chatButtonNewMessageNotificationLabel": "Yeni İleti",
-    "pictureInPictureTileAriaLabel": "Video Akışları. Çağrı ekranına dönmek için tıklayın."
+    "pictureInPictureTileAriaLabel": "Video Akışları. Çağrı ekranına dönmek için tıklayın.",
+    "removeMenuLabel": "Kaldır",
+    "copyInviteLinkButtonLabel": "Davet bağlantısını kopyala"
   }
 }

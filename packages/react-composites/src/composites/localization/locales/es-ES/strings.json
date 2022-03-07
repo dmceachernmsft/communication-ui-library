@@ -45,12 +45,14 @@
   "callWithChat": {
     "peopleButtonLabel": "Contactos",
     "chatButtonLabel": "Chat",
-    "moreDrawerMicrophoneMenuTitle": "Microphone",
-    "moreDrawerSpeakerMenuTitle": "Speaker",
+    "moreDrawerMicrophoneMenuTitle": "Micrófono",
+    "moreDrawerSpeakerMenuTitle": "Altavoz",
     "peoplePaneTitle": "Contactos",
     "peoplePaneSubTitle": "En esta llamada",
     "chatPaneTitle": "Chat",
     "chatButtonNewMessageNotificationLabel": "Nuevo mensaje",
-    "pictureInPictureTileAriaLabel": "Fuentes de vídeo. Hacer clic para volver a la pantalla de la llamada."
+    "pictureInPictureTileAriaLabel": "Fuentes de vídeo. Hacer clic para volver a la pantalla de la llamada.",
+    "removeMenuLabel": "Quitar",
+    "copyInviteLinkButtonLabel": "Copiar vínculo de invitación"
   }
 }
