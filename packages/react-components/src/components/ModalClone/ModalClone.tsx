@@ -4,6 +4,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import * as React from 'react';
 import { useBoolean, useMergedRefs, useConst, useSetTimeout, useId, useUnmount } from '@fluentui/react-hooks';
@@ -16,6 +18,7 @@ import {
   elementContains,
   EventGroup,
   FocusTrapZone,
+  getGlobalClassNames,
   getPropsWithDefaults,
   Icon,
   IDragOptions,
@@ -26,12 +29,16 @@ import {
   IModalStyles,
   KeyCodes,
   Layer,
+  memoizeFunction,
+  mergeStyles,
+  on,
   Overlay,
   Popup,
   ResponsiveMode,
-  useResponsiveMode
+  styled,
+  useResponsiveMode,
+  ZIndexes
 } from '@fluentui/react';
-import { DraggableZone } from './DraggableZone';
 import { useWindow } from '@fluentui/react-window-provider';
 
 // @TODO - need to change this to a panel whenever the breakpoint is under medium (verify the spec)
@@ -67,7 +74,7 @@ const DEFAULT_PROPS: Partial<IModalProps> = {
   enableAriaHiddenSiblings: true
 };
 
-const getClassNames = classNamesFunction<IModalStyleProps, IModalStyles>();
+const getModalClassNames = classNamesFunction<IModalStyleProps, IModalStyles>();
 
 const getMoveDelta = (ev: React.KeyboardEvent<HTMLElement>): number => {
   let delta = 10;
@@ -96,8 +103,7 @@ const useComponentRef = (props: IModalProps, focusTrapZone: React.RefObject<IFoc
   );
 };
 
-/** @private */
-export const ModalClone: React.FunctionComponent<IModalProps> = React.forwardRef<HTMLDivElement, IModalProps>(
+const ModalBase: React.FunctionComponent<IModalProps> = React.forwardRef<HTMLDivElement, IModalProps>(
   (propsWithoutDefaults, ref) => {
     const props = getPropsWithDefaults(DEFAULT_PROPS, propsWithoutDefaults);
     const {
@@ -162,7 +168,7 @@ export const ModalClone: React.FunctionComponent<IModalProps> = React.forwardRef
     const isAlertRole = isAlert ?? (isBlocking && !isModeless);
 
     const layerClassName = layerProps === undefined ? '' : layerProps.className;
-    const classNames = getClassNames(styles, {
+    const classNames = getModalClassNames(styles, {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       theme: theme!,
       className,
@@ -175,7 +181,7 @@ export const ModalClone: React.FunctionComponent<IModalProps> = React.forwardRef
       topOffsetFixed,
       isModeless,
       layerClassName,
-      windowInnerHeight: win.innerHeight,
+      windowInnerHeight: win?.innerHeight,
       isDefaultDragHandle: dragOptions && !dragOptions.dragHandleSelector
     });
 
@@ -500,6 +506,536 @@ export const ModalClone: React.FunctionComponent<IModalProps> = React.forwardRef
       )) ||
       null
     );
+  }
+);
+ModalBase.displayName = 'ModalBase';
+
+interface IDraggableZoneStyles {
+  root: string;
+}
+
+const getDraggableZoneClassNames = memoizeFunction((className: string, isDragging: boolean): IDraggableZoneStyles => {
+  return {
+    root: mergeStyles(
+      className,
+      isDragging && {
+        touchAction: 'none',
+        selectors: {
+          '& *': {
+            userSelect: 'none'
+          }
+        }
+      }
+    )
+  };
+});
+
+interface IDragData {
+  position: ICoordinates;
+  lastPosition?: ICoordinates;
+  delta: ICoordinates;
+}
+
+interface IDraggableZoneProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * Specifies a selector to be used as the handle that initiates drag
+   */
+  handleSelector?: string;
+
+  /**
+   * Specifies a selector to be used to prevent drag initialization.
+   * For example, if you do not want buttons inside of your handleSelector
+   * to have the cursor change to move or to allow users to select from buttons,
+   * you could pass button here (the close button in the header of a dialog is a concrete example)
+   */
+  preventDragSelector?: string;
+
+  /**
+   * the X and Y coordinates to use as an offest to position the draggable content
+   */
+  position?: ICoordinates;
+
+  /**
+   * Callback for when dragging starts
+   */
+  onStart?: (event: React.MouseEvent<HTMLElement> & React.TouchEvent<HTMLElement>, dragData: IDragData) => void;
+
+  /**
+   * Callback for when the drag changes, while dragging
+   */
+  onDragChange?: (event: React.MouseEvent<HTMLElement> & React.TouchEvent<HTMLElement>, dragData: IDragData) => void;
+
+  /**
+   * Callback for when dragging stops
+   */
+  onStop?: (event: React.MouseEvent<HTMLElement> & React.TouchEvent<HTMLElement>, dragData: IDragData) => void;
+}
+
+interface IDraggableZoneState {
+  isDragging: boolean;
+  position: ICoordinates;
+  lastPosition?: ICoordinates;
+}
+
+const eventMapping = {
+  touch: {
+    start: 'touchstart',
+    move: 'touchmove',
+    stop: 'touchend'
+  },
+  mouse: {
+    start: 'mousedown',
+    move: 'mousemove',
+    stop: 'mouseup'
+  }
+};
+
+// These are needed so that we can generalize the events
+// and so we have access to clientX and clientY in the touch events
+type MouseTouchEvent<T> = React.MouseEvent<T> & React.TouchEvent<T> & Event;
+
+class DraggableZone extends React.Component<IDraggableZoneProps, IDraggableZoneState> {
+  private _touchId?: number;
+  private _currentEventType = eventMapping.mouse;
+  private _events: (() => void)[] = [];
+
+  constructor(props: IDraggableZoneProps) {
+    super(props);
+
+    this.state = {
+      isDragging: false,
+      position: this.props.position || { x: 0, y: 0 },
+      lastPosition: undefined
+    };
+  }
+
+  public componentDidUpdate(prevProps: IDraggableZoneProps) {
+    if (this.props.position && (!prevProps.position || this.props.position !== prevProps.position)) {
+      this.setState({ position: this.props.position });
+    }
+  }
+
+  public componentWillUnmount() {
+    this._events.forEach((dispose) => dispose());
+  }
+
+  public render() {
+    const child: any = React.Children.only(this.props.children);
+    const { props } = child;
+    const { position } = this.props;
+    const { position: statePosition, isDragging } = this.state;
+    let x = statePosition.x;
+    let y = statePosition.y;
+
+    if (position && !isDragging) {
+      x = position.x;
+      y = position.y;
+    }
+
+    return React.cloneElement(child, {
+      style: {
+        ...props.style,
+        transform: `translate(${x}px, ${y}px)`
+      },
+      className: getDraggableZoneClassNames(props.className, this.state.isDragging).root,
+      onMouseDown: this._onMouseDown,
+      onMouseUp: this._onMouseUp,
+      onTouchStart: this._onTouchStart,
+      onTouchEnd: this._onTouchEnd
+    });
+  }
+
+  private _onMouseDown = (event: MouseTouchEvent<HTMLElement>) => {
+    const onMouseDown = (React.Children.only(this.props.children) as any).props.onMouseDown;
+    if (onMouseDown) {
+      onMouseDown(event);
+    }
+
+    this._currentEventType = eventMapping.mouse;
+    return this._onDragStart(event);
+  };
+
+  private _onMouseUp = (event: MouseTouchEvent<HTMLElement>) => {
+    const onMouseUp = (React.Children.only(this.props.children) as any).props.onMouseUp;
+    if (onMouseUp) {
+      onMouseUp(event);
+    }
+
+    this._currentEventType = eventMapping.mouse;
+    return this._onDragStop(event);
+  };
+
+  private _onTouchStart = (event: MouseTouchEvent<HTMLElement>) => {
+    const onTouchStart = (React.Children.only(this.props.children) as any).props.onTouchStart;
+    if (onTouchStart) {
+      onTouchStart(event);
+    }
+
+    this._currentEventType = eventMapping.touch;
+    return this._onDragStart(event);
+  };
+
+  private _onTouchEnd = (event: MouseTouchEvent<HTMLElement>) => {
+    const onTouchEnd = (React.Children.only(this.props.children) as any).props.onTouchEnd;
+    if (onTouchEnd) {
+      onTouchEnd(event);
+    }
+
+    this._currentEventType = eventMapping.touch;
+    this._onDragStop(event);
+  };
+
+  private _onDragStart = (event: MouseTouchEvent<HTMLElement>) => {
+    // Only handle left click for dragging
+    if (typeof event.button === 'number' && event.button !== 0) {
+      return false;
+    }
+
+    // If the target doesn't match the handleSelector OR
+    // if the target does match the preventDragSelector, bail out
+    if (
+      (this.props.handleSelector && !this._matchesSelector(event.target as HTMLElement, this.props.handleSelector)) ||
+      (this.props.preventDragSelector &&
+        this._matchesSelector(event.target as HTMLElement, this.props.preventDragSelector))
+    ) {
+      return;
+    }
+
+    // Remember the touch identifier if this is a touch event so we can
+    // distinguish between individual touches in multitouch scenarios
+    // by remembering which touch point we were given
+    this._touchId = this._getTouchId(event);
+
+    const position = this._getControlPosition(event);
+    if (position === undefined) {
+      return;
+    }
+
+    const dragData = this._createDragDataFromPosition(position);
+    this.props.onStart && this.props.onStart(event, dragData);
+
+    this.setState({
+      isDragging: true,
+      lastPosition: position
+    });
+
+    // hook up the appropriate mouse/touch events to the body to ensure
+    // smooth dragging
+    this._events = [
+      on(document.body, this._currentEventType.move, this._onDrag, true /* use capture phase */),
+      on(document.body, this._currentEventType.stop, this._onDragStop, true /* use capture phase */)
+    ];
+
+    return;
+  };
+
+  private _onDrag = (event: any) => {
+    // Prevent scrolling on mobile devices
+    if (event.type === 'touchmove') {
+      event.preventDefault();
+    }
+
+    const position = this._getControlPosition(event);
+    if (!position) {
+      return;
+    }
+
+    // create the updated drag data from the position data
+    const updatedData = this._createUpdatedDragData(this._createDragDataFromPosition(position));
+    const updatedPosition = updatedData.position;
+
+    this.props.onDragChange && this.props.onDragChange(event, updatedData);
+
+    this.setState({
+      position: updatedPosition,
+      lastPosition: position
+    });
+  };
+
+  private _onDragStop = (event: any) => {
+    if (!this.state.isDragging) {
+      return;
+    }
+
+    const position = this._getControlPosition(event);
+    if (!position) {
+      return;
+    }
+
+    const baseDragData = this._createDragDataFromPosition(position);
+
+    // Set dragging to false and reset the lastPosition
+    this.setState({
+      isDragging: false,
+      lastPosition: undefined
+    });
+
+    this.props.onStop && this.props.onStop(event, baseDragData);
+
+    if (this.props.position) {
+      this.setState({
+        position: this.props.position
+      });
+    }
+
+    // Remove event handlers
+    this._events.forEach((dispose) => dispose());
+  };
+
+  /**
+   * Get the control position based off the event that fired
+   * @param event - The event to get offsets from
+   */
+  private _getControlPosition(event: MouseTouchEvent<HTMLElement>): ICoordinates | undefined {
+    const touchObj = this._getActiveTouch(event);
+
+    // did we get the right touch?
+    if (this._touchId !== undefined && !touchObj) {
+      return undefined;
+    }
+
+    const eventToGetOffset = touchObj || event;
+    return {
+      x: eventToGetOffset.clientX,
+      y: eventToGetOffset.clientY
+    };
+  }
+
+  /**
+   * Get the active touch point that we have saved from the event's TouchList
+   * @param event - The event used to get the TouchList for the active touch point
+   */
+  private _getActiveTouch(event: MouseTouchEvent<HTMLElement>): React.Touch | undefined {
+    return (
+      (event.targetTouches && this._findTouchInTouchList(event.targetTouches)) ||
+      (event.changedTouches && this._findTouchInTouchList(event.changedTouches))
+    );
+  }
+
+  /**
+   * Get the initial touch identifier associated with the given event
+   * @param event - The event that contains the TouchList
+   */
+  private _getTouchId(event: MouseTouchEvent<HTMLElement>): number | undefined {
+    const touch: React.Touch | undefined =
+      (event.targetTouches && event.targetTouches[0]) || (event.changedTouches && event.changedTouches[0]);
+
+    if (touch) {
+      return touch.identifier;
+    }
+
+    return;
+  }
+
+  /**
+   * Returns if an element (or any of the element's parents) match the given selector
+   */
+  private _matchesSelector(element: HTMLElement | null, selector: string): boolean {
+    if (!element || element === document.body) {
+      return false;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const matchesSelectorFn: Function =
+      element.matches || element.webkitMatchesSelector || (element as any).msMatchesSelector; /* for IE */
+
+    if (!matchesSelectorFn) {
+      return false;
+    }
+
+    return matchesSelectorFn.call(element, selector) || this._matchesSelector(element.parentElement, selector);
+  }
+
+  /**
+   * Attempts to find the Touch that matches the identifier  we stored in dragStart
+   * @param touchList The TouchList to look for the stored identifier from dragStart
+   */
+  private _findTouchInTouchList(touchList: React.TouchList): React.Touch | undefined {
+    if (this._touchId === undefined) {
+      return;
+    }
+
+    for (let i = 0; i < touchList.length; i++) {
+      if (touchList[i].identifier === this._touchId) {
+        return touchList[i];
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Create DragData based off of the last known position and the new position passed in
+   * @param position The new position as part of the drag
+   */
+  private _createDragDataFromPosition(position: ICoordinates): IDragData {
+    const { lastPosition } = this.state;
+
+    // If we have no lastPosition, use the given position
+    // for last position
+    if (lastPosition === undefined) {
+      return {
+        delta: { x: 0, y: 0 },
+        lastPosition: position,
+        position
+      };
+    }
+
+    return {
+      delta: {
+        x: position.x - lastPosition.x,
+        y: position.y - lastPosition.y
+      },
+      lastPosition,
+      position
+    };
+  }
+
+  /**
+   * Creates an updated DragData based off the current position and given baseDragData
+   * @param baseDragData The base DragData (from _createDragDataFromPosition) used to calculate the updated positions
+   */
+  private _createUpdatedDragData(baseDragData: IDragData): IDragData {
+    const { position } = this.state;
+    return {
+      position: {
+        x: position.x + baseDragData.delta.x,
+        y: position.y + baseDragData.delta.y
+      },
+      delta: baseDragData.delta,
+      lastPosition: position
+    };
+  }
+}
+
+const globalClassNames = {
+  root: 'ms-Modal',
+  main: 'ms-Dialog-main',
+  scrollableContent: 'ms-Modal-scrollableContent',
+  isOpen: 'is-open',
+  layer: 'ms-Modal-Layer'
+};
+
+const getStyles = (props: IModalStyleProps): IModalStyles => {
+  const {
+    className,
+    containerClassName,
+    scrollableContentClassName,
+    isOpen,
+    isVisible,
+    hasBeenOpened,
+    modalRectangleTop,
+    theme,
+    topOffsetFixed,
+    isModeless,
+    layerClassName,
+    isDefaultDragHandle,
+    windowInnerHeight
+  } = props;
+  const { palette, effects, fonts } = theme;
+
+  const classNames = getGlobalClassNames(globalClassNames, theme);
+
+  return {
+    root: [
+      classNames.root,
+      fonts.medium,
+      {
+        backgroundColor: 'transparent',
+        position: isModeless ? 'absolute' : 'fixed',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: 0,
+        pointerEvents: 'none',
+        transition: `opacity ${animationDuration}`
+      },
+      topOffsetFixed &&
+        typeof modalRectangleTop === 'number' &&
+        hasBeenOpened && {
+          alignItems: 'flex-start'
+        },
+      isOpen && classNames.isOpen,
+      isVisible && {
+        opacity: 1,
+        pointerEvents: 'auto'
+      },
+      className
+    ],
+    main: [
+      classNames.main,
+      {
+        boxShadow: effects.elevation64,
+        borderRadius: effects.roundedCorner2,
+        backgroundColor: palette.white,
+        boxSizing: 'border-box',
+        position: 'relative',
+        textAlign: 'left',
+        outline: '3px solid transparent',
+        maxHeight: 'calc(100% - 32px)',
+        maxWidth: 'calc(100% - 32px)',
+        minHeight: '176px',
+        minWidth: '288px',
+        overflowY: 'auto',
+        zIndex: isModeless ? ZIndexes.Layer : undefined
+      },
+      topOffsetFixed &&
+        typeof modalRectangleTop === 'number' &&
+        hasBeenOpened && {
+          top: modalRectangleTop
+        },
+      isDefaultDragHandle && {
+        cursor: 'move'
+      },
+      containerClassName
+    ],
+    scrollableContent: [
+      classNames.scrollableContent,
+      {
+        overflowY: 'auto',
+        flexGrow: 1,
+        maxHeight: '100vh',
+        selectors: {
+          ['@supports (-webkit-overflow-scrolling: touch)']: {
+            maxHeight: windowInnerHeight
+          }
+        }
+      },
+      scrollableContentClassName
+    ],
+    layer: isModeless && [
+      layerClassName,
+      classNames.layer,
+      {
+        position: 'static',
+        width: 'unset',
+        height: 'unset'
+      }
+    ],
+    keyboardMoveIconContainer: {
+      position: 'absolute',
+      display: 'flex',
+      justifyContent: 'center',
+      width: '100%',
+      padding: '3px 0px'
+    },
+    keyboardMoveIcon: {
+      fontSize: fonts.xLargePlus.fontSize,
+      width: '24px'
+    }
+  };
+};
+
+/** @private */
+export const ModalClone: React.FunctionComponent<IModalProps> = styled<IModalProps, IModalStyleProps, IModalStyles>(
+  ModalBase,
+  getStyles,
+  undefined,
+  {
+    scope: 'Modal',
+    fields: ['theme', 'styles', 'enableAriaHiddenSiblings']
   }
 );
 ModalClone.displayName = 'Modal';
