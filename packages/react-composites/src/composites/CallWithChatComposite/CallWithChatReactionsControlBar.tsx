@@ -15,12 +15,14 @@ export interface CallWithChatReactionsControlBarProps {
   reactions: ReactionOptions;
   callAdapter: CallAdapter;
   localParticipantID: string;
+  onReaction: (type: string, user: string) => Promise<void>; // callback function for sending reactions
 }
 
 export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsControlBarProps): JSX.Element => {
+  const { reactions, localParticipantID, onReaction } = props;
   // use the props to show different reactions
   const theme = useTheme();
-  const user = props.localParticipantID;
+  const user = localParticipantID;
   const styles: ControlBarButtonStyles = useMemo(
     () =>
       concatStyleSets({
@@ -30,19 +32,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
       }),
     [theme.palette.neutralLight]
   );
-  const onReaction = (reaction: string, participant: string): void => {
-    // so now we need to find out how to make requests to the Teams api
-    // we want to send a reaction to the following graphQL? -> can we even make this request? how do we authenticate it?
-    // subscription callParticipantsReactionsLiveStateEvent($sessionId: ID!) {
-    //     callParticipantsReactionsLiveStateEvent(sessionId: $sessionId) {
-    //       sessionId
-    //       meetingReactions {
-    //         participantId
-    //         meetingReaction
-    //       }
-    //     }
-    //   }
-  };
+
   const onRenderRaiseHandIcon = useCallback((): JSX.Element => {
     return <>🖐️</>;
   }, []);
@@ -60,7 +50,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
   }, []);
   return (
     <Stack horizontalAlign={'center'}>
-      {props.reactions.raiseHand && (
+      {reactions.raiseHand && (
         <ControlBarButton
           onClick={onReaction('Raise hand', user)}
           strings={{ label: 'Raise Hand' }}
@@ -68,7 +58,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
           onRenderOffIcon={onRenderRaiseHandIcon}
         ></ControlBarButton>
       )}
-      {props.reactions.clap && (
+      {reactions.clap && (
         <ControlBarButton
           onClick={onReaction('Clap', user)}
           strings={{ label: 'clap' }}
@@ -76,7 +66,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
           onRenderOffIcon={onRenderClapIcon}
         ></ControlBarButton>
       )}
-      {props.reactions.wow && (
+      {reactions.wow && (
         <ControlBarButton
           onClick={onReaction('Suprised', user)}
           strings={{ label: 'wow' }}
@@ -84,7 +74,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
           onRenderOffIcon={onRenderWowIcon}
         ></ControlBarButton>
       )}
-      {props.reactions.heart && (
+      {reactions.heart && (
         <ControlBarButton
           onClick={onReaction('Heart', user)}
           strings={{ label: 'heart' }}
@@ -92,7 +82,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
           onRenderOffIcon={onRenderHeartIcon}
         ></ControlBarButton>
       )}
-      {props.reactions.laugh && (
+      {reactions.laugh && (
         <ControlBarButton
           onClick={onReaction('Laugh', user)}
           strings={{ label: 'laugh' }}
