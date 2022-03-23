@@ -30,6 +30,7 @@ import { useId } from '@fluentui/react-hooks';
 import { CallWithChatPane, CallWithChatPaneOption } from './CallWithChatPane';
 /* @conditional-compile-remove(file-sharing) */
 import { FileSharingOptions } from '../ChatComposite';
+import { CallWithChatReactionsControlBar } from './CallWithChatReactionsControlBar';
 
 /**
  * Props required for the {@link CallWithChatComposite}
@@ -58,6 +59,10 @@ export interface CallWithChatCompositeProps extends BaseCompositeProps<CallWithC
    * Flags to enable/disable or customize UI elements of the {@link CallWithChatComposite}
    */
   options?: CallWithChatCompositeOptions;
+  /**
+   * Flag to determine if is a teams meeting or not so to use reactions in the call.
+   */
+  isTeamsMeeting?: boolean;
 }
 
 /**
@@ -138,6 +143,7 @@ type CallWithChatScreenProps = {
   onFetchParticipantMenuItems?: ParticipantMenuItemsCallback;
   /* @conditional-compile-remove(file-sharing) */
   fileSharing?: FileSharingOptions;
+  isTeamsMeeting?: boolean;
 };
 
 const CallWithChatScreen = (props: CallWithChatScreenProps): JSX.Element => {
@@ -269,6 +275,18 @@ const CallWithChatScreen = (props: CallWithChatScreenProps): JSX.Element => {
               disableButtonsForLobbyPage={isInLobbyOrConnecting}
               callControls={props.callControls}
             />
+            {props.isTeamsMeeting && (
+              <CallWithChatReactionsControlBar
+                callAdapter={callAdapter}
+                reactions={{
+                  clap: true,
+                  laugh: true,
+                  raiseHand: true,
+                  wow: true,
+                  heart: true
+                }}
+              />
+            )}
           </Stack.Item>
         </ChatAdapterProvider>
       )}
