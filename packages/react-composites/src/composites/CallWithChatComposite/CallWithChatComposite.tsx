@@ -31,6 +31,7 @@ import { CallWithChatPane, CallWithChatPaneOption } from './CallWithChatPane';
 /* @conditional-compile-remove(file-sharing) */
 import { FileSharingOptions } from '../ChatComposite';
 import { CallWithChatReactionsControlBar } from './CallWithChatReactionsControlBar';
+import { CommunicationUserKind } from '@azure/communication-signaling';
 
 /**
  * Props required for the {@link CallWithChatComposite}
@@ -263,6 +264,20 @@ const CallWithChatScreen = (props: CallWithChatScreenProps): JSX.Element => {
       {showControlBar && !isMobileWithActivePane && (
         <ChatAdapterProvider adapter={chatProps.adapter}>
           <Stack.Item styles={controlBarContainerStyles}>
+            {props.isTeamsMeeting && (
+              <CallWithChatReactionsControlBar
+                callAdapter={callAdapter}
+                reactions={{
+                  clap: true,
+                  laugh: true,
+                  raiseHand: true,
+                  wow: true,
+                  heart: true
+                }}
+                localParticipantID={(callAdapter.getState().userId as CommunicationUserKind).communicationUserId}
+                onReaction={function (type: string, user: string): void {}}
+              />
+            )}
             <CallWithChatControlBar
               callAdapter={callAdapter}
               chatAdapter={chatProps.adapter}
@@ -275,18 +290,6 @@ const CallWithChatScreen = (props: CallWithChatScreenProps): JSX.Element => {
               disableButtonsForLobbyPage={isInLobbyOrConnecting}
               callControls={props.callControls}
             />
-            {props.isTeamsMeeting && (
-              <CallWithChatReactionsControlBar
-                callAdapter={callAdapter}
-                reactions={{
-                  clap: true,
-                  laugh: true,
-                  raiseHand: true,
-                  wow: true,
-                  heart: true
-                }}
-              />
-            )}
           </Stack.Item>
         </ChatAdapterProvider>
       )}

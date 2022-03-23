@@ -15,7 +15,7 @@ export interface CallWithChatReactionsControlBarProps {
   reactions: ReactionOptions;
   callAdapter: CallAdapter;
   localParticipantID: string;
-  onReaction: (type: string, user: string) => Promise<void>; // callback function for sending reactions
+  onReaction: (type: string, user: string) => void; // callback function for sending reactions
 }
 
 export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsControlBarProps): JSX.Element => {
@@ -49,7 +49,7 @@ export const CallWithChatReactionsControlBar = (props: CallWithChatReactionsCont
     return <>😂</>;
   }, []);
   return (
-    <Stack horizontalAlign={'center'}>
+    <Stack horizontal={true} horizontalAlign={'center'}>
       {reactions.raiseHand && (
         <ControlBarButton
           onClick={onReaction('Raise hand', user)}
